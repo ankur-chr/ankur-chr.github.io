@@ -628,5 +628,15 @@ $("alpha-foot").textContent = ALPHABET.join("");
 setChips();
 refresh();
 </script>
+<!-- GoatCounter — privacy-friendly, cookieless analytics. Skips localhost and your own opted-out browsers. -->
+<script>
+  window.goatcounter = {
+    no_onload: location.hostname === 'localhost' ||
+               location.hostname === '127.0.0.1' ||
+               localStorage.getItem('skipgc') === 't'
+  };
+</script>
+<script data-goatcounter="https://ankur-chr.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>

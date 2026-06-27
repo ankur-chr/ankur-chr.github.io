@@ -217,5 +217,15 @@ spin(document.getElementById("sigLogo"),8,9);
       if(dd<2600){x.strokeStyle=`rgba(120,150,255,${.12*(1-dd/2600)})`;x.lineWidth=.6;x.beginPath();x.moveTo(pts[i].x,pts[i].y);x.lineTo(pts[j].x,pts[j].y);x.stroke();}}
     requestAnimationFrame(f);})();})();
 </script>
+<!-- GoatCounter — privacy-friendly, cookieless analytics. Skips localhost and your own opted-out browsers. -->
+<script>
+  window.goatcounter = {
+    no_onload: location.hostname === 'localhost' ||
+               location.hostname === '127.0.0.1' ||
+               localStorage.getItem('skipgc') === 't'
+  };
+</script>
+<script data-goatcounter="https://ankur-chr.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>

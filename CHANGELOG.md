@@ -4,6 +4,22 @@ All notable changes to this project are recorded here. Dates are absolute (YYYY-
 
 ## 2026-06-27
 
+### Privacy-friendly visitor analytics (GoatCounter)
+
+**Cookieless page-visit tracking added to all five pages** — `index.html`, `essay.html`,
+`aether.html`, `aquarium.html`, and `inside-the-model/web/world-inside.html` each load the
+GoatCounter snippet (endpoint `https://ankur-chr.goatcounter.com/count`). GoatCounter is
+open-source, cookie-free, and needs no GDPR consent banner — a better fit for the HN/privacy
+audience than Google Analytics. Stats are viewed at the `ankur-chr.goatcounter.com` dashboard.
+
+**Self-exclusion built in** — the snippet sets `no_onload` (skips the auto pageview) when the
+host is `localhost`/`127.0.0.1` *or* when `localStorage` key `skipgc === 't'`. Local dev is
+never counted; setting the `skipgc` flag once per browser on the live origin excludes the owner
+across the whole site (localStorage is shared per-origin, so one flag covers all pages).
+
+The `inside-the-model/web/index.html` redirect stub is intentionally left untracked — it does an
+instant `meta refresh` to `world-inside.html` (which is tracked), so counting it would double-count.
+
 ### Demo intro clarity + masthead (`world-inside.html`)
 
 **Lede that leads the page** — replaced the H1 sub-line with a left-aligned `.lede` intro
