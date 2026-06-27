@@ -4,6 +4,51 @@ All notable changes to this project are recorded here. Dates are absolute (YYYY-
 
 ## 2026-06-27
 
+### Site-wide navigation + responsiveness
+
+**Unified nav across all five pages** — one consistent bar everywhere:
+`Home · Inside the Model · ÆTHER · Aquarium · Writing`, with the current page marked
+via `aria-current="page"` and a subtle active style.
+- `aether.html` had **no nav at all** — added it (in a new `.hdr-right` group beside the
+  CHANNEL OPEN pill).
+- `aquarium.html` linked only Home + ÆTHER; `world-inside.html` was missing itself +
+  Writing; `index.html` and `essay.html` were brought onto the same pattern.
+
+**Consistent header alignment across all pages** — every page now uses the same
+`header.top` structure: page-relevant brand on the left, nav right-aligned to the container
+edge on the same row. `essay.html` previously had a lone left-aligned nav with no header —
+it now has a "Writing" brand + right-aligned nav like the rest. `aether.html`'s CHANNEL OPEN
+status pill moved under the brand subtitle so the nav sits top-right (was sharing the right
+edge with the pill). Standardized `.nav` flex container (gap 8, wrap, right-justify) and the
+`aria-current` active style site-wide. Branding stays page-relevant: personal name on Home
+only, project names on the demos, "Writing" on the essay.
+
+**Quiet personal byline on demo pages** — `world-inside`, `aether`, `aquarium` each gained
+a footer byline `Built by Ankur Chrungoo · more projects` (links to Home). Project title
+stays the headline so the demos read artifact-first (HN-safe), not promotional.
+
+**Demo first-impression clarity** (`world-inside.html`) — for the HN front door:
+- **Grounded the scenario in Act I.** The narration now states the toy world up front — an
+  agent wandering a tiny grid with a hidden lamp, and that the model only ever sees the
+  move-trail (↑ ↓ → ←) plus a 🔦 blip when the lamp is in view — instead of leaving a
+  first-time visitor to infer it. Also explains the 🔦 stream symbol that was previously
+  unexplained.
+- **Unified the lamp glyph.** The lamp was rendered as 👁 (eye) in the move-stream and
+  lamp-sense readout but as 🔦 (flashlight) on the grid and in all narration — two faces for
+  one concept. Now 🔦 everywhere (`TOKCH.LAMP`, lamp-sense readout, tooltip).
+
+**Title aligned to the theme** — `world-inside.html`'s `<title>` and `og:title` now lead
+with "Inside the Model" (was "The World Inside") so the HN tab + link preview match the
+submission and the nav/brand. The on-page H1 stays "The World Inside" (the demo's own name;
+footer frames it as "Inside the Model #1").
+
+**Navigation responsiveness fix** — the demo pages run continuous heavy loops
+(`world-inside`: a pure-JS transformer on `setInterval`; `aquarium`: a live training loop)
+that saturated the main thread and made clicking away feel "stuck." Added `pagehide` +
+`visibilitychange` handlers that stop those loops the instant you leave or background the
+tab, so navigation responds immediately. `aether`'s work is on-demand (per keystroke), so
+it needed no loop teardown.
+
 ### Pre-launch cleanup
 - Removed a stale `TODO: replace with your real profiles` comment in `index.html`;
   the GitHub/LinkedIn profile links beneath it were already correct.

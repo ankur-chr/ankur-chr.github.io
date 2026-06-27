@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>The World Inside · watch a machine build a world, then change its mind</title>
+<title>Inside the Model · The World Inside — watch a machine build a world, then change its mind</title>
 <meta name="description" content="A 155K-parameter model builds a world from move-symbols, a probe reads its mind live, and you can edit its beliefs — runs entirely in your browser." />
-<meta property="og:title" content="The World Inside · watch a machine build a world, then change its mind" />
+<meta property="og:title" content="Inside the Model — The World Inside" />
 <meta property="og:description" content="A tiny model builds a world from symbols, reads its own map, and acts on a false one when you edit its mind. Runs in your browser." />
 <meta property="og:image" content="https://ankur-chr.github.io/assets/og-image.png" />
 <meta name="twitter:card" content="summary_large_image" />
@@ -43,8 +43,10 @@
   .brand h1{margin:0;font-size:20px;font-weight:650;letter-spacing:.3px}
   .brand h1 b{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
   .brand p{margin:2px 0 0;font-size:12px;color:var(--muted)}
+  .nav{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
   .nav a{font-size:12px;color:var(--muted);text-decoration:none;border:1px solid var(--line);padding:8px 13px;border-radius:999px;transition:.18s}
   .nav a:hover{color:var(--ink);border-color:rgba(110,231,255,.45);background:rgba(110,231,255,.06)}
+  .nav a[aria-current=page]{color:var(--ink);border-color:rgba(110,231,255,.45);background:rgba(110,231,255,.10);font-weight:600}
 
   /* narration */
   .narrate{display:flex;gap:14px;align-items:flex-start;border:1px solid var(--line);border-radius:14px;padding:15px 18px;margin-bottom:18px;background:var(--glass-2);transition:.4s}
@@ -127,6 +129,9 @@
   .loading{text-align:center;color:var(--muted);padding:60px;font-size:14px}
   footer{margin-top:34px;text-align:center;color:var(--faint);font-size:11px;line-height:1.7}
   footer code{font-family:var(--mono);color:var(--muted)}
+  .byline{margin-top:11px}
+  .byline a{color:var(--muted);text-decoration:none;border-bottom:1px solid var(--line)}
+  .byline a:hover{color:var(--ink);border-color:rgba(110,231,255,.45)}
   .flash{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);opacity:0;background:rgba(20,26,46,.96);border:1px solid rgba(110,231,255,.4);color:var(--ink);padding:11px 20px;border-radius:12px;font-size:13px;z-index:50;pointer-events:none;transition:.28s;backdrop-filter:blur(10px);text-align:center;max-width:90vw}
   .flash.show{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
@@ -138,7 +143,13 @@
       <canvas id="logo" class="mark" width="88" height="88"></canvas>
       <div><h1>The <b>World Inside</b></h1><p>watch a machine build a world from move-symbols — then change its mind</p></div>
     </div>
-    <div class="nav"><a href="../../index.html">↖ Home</a> &nbsp;<a href="../../aether.html">↔ ÆTHER</a> &nbsp;<a href="../../aquarium.html">↔ Aquarium</a></div>
+    <nav class="nav">
+      <a href="../../index.html">Home</a>
+      <a href="world-inside.html" aria-current="page">Inside the Model</a>
+      <a href="../../aether.html">ÆTHER</a>
+      <a href="../../aquarium.html">Aquarium</a>
+      <a href="../../essay.html">Writing</a>
+    </nav>
   </header>
 
   <div id="app" class="loading">Waking the model…</div>
@@ -168,7 +179,7 @@
           <span class="lg-a"><i></i><span class="term" tabindex="0" data-tip="The solid cyan dot: the agent's true square, advanced one step per symbol.">where it actually is</span></span>
           <span class="lg-b"><i></i><span class="term" tabindex="0" data-tip="The dashed circle is the model's belief, decoded live by a linear probe. Normally it sits on the true square. Implant a false memory and it turns red and travels alongside the true agent, offset by your lie — the model's move-arrows always match the walls where it thinks it is. Proof the internal map is causal, not decorative.">where it <b>believes</b> it is</span></span>
         </div>
-        <div class="lampsense" id="lampsense"><span class="term" tabindex="0" data-tip="How strongly the model predicts the 👁 (lamp) symbol next — i.e. how sure it is a lamp is in view. It spikes when the model believes it's beside the lamp, even if it really isn't.">lamp-sense</span>: <span id="lampval">—</span></div>
+        <div class="lampsense" id="lampsense"><span class="term" tabindex="0" data-tip="How strongly the model predicts the 🔦 (lamp) symbol next — i.e. how sure it is a lamp is in view. It spikes when the model believes it's beside the lamp, even if it really isn't.">lamp-sense</span>: <span id="lampval">—</span></div>
       </div>
     </div>
   </div>
@@ -217,6 +228,7 @@
   <footer>
     The World Inside · <b>Inside the Model #1</b> · a 155K-param transformer running live in your browser, no server, no network.
     Trained only on next-token prediction; world model decoded by a linear probe; belief edited by activation patching. <code>open-source</code>
+    <div class="byline">Built by <a href="../../index.html">Ankur Chrungoo</a> · <a href="../../index.html">more projects</a></div>
   </footer>
 </div>
 <div class="flash" id="flash"></div>
@@ -292,7 +304,7 @@ function stepToken(){
 /* ───────── render ───────── */
 let act=1, playing=true, timer=null, speed=650;
 let smX=null, smY=null;   // smoothed belief position so the circle hovers instead of jittering
-const TOKCH={N:'↑',S:'↓',E:'→',W:'←',LAMP:'👁'};
+const TOKCH={N:'↑',S:'↓',E:'→',W:'←',LAMP:'🔦'};
 function cellCenterPct(x,y){ // grid has 10px pad; 7 cells, 4px gap. Use percentage within grid box.
   const pad=10, gap=4, box=$("grid").clientWidth, inner=box-2*pad, cw=(inner-6*gap)/7;
   const cx=pad+x*(cw+gap)+cw/2, cy=pad+y*(cw+gap)+cw/2;
@@ -347,7 +359,7 @@ function render(){
   const pl=probs[TOK.LAMP];
   $("lampsense").classList.toggle("on", pl>0.4);
   $("lampval").textContent = pl>0.4
-    ? (lying && !nearLamp(ax,ay) ? `👁 ON — it "sees" a lamp that isn't there (${(pl*100|0)}%)` : `👁 ON — it senses the lamp (${(pl*100|0)}%)`)
+    ? (lying && !nearLamp(ax,ay) ? `🔦 ON — it "sees" a lamp that isn't there (${(pl*100|0)}%)` : `🔦 ON — it senses the lamp (${(pl*100|0)}%)`)
     : `· off (${(pl*100|0)}%)`;
   // hallucination: believes it's by the lamp while truly far away -> "sees" a lamp that isn't there
   if(pl>0.4 && lying && !nearLamp(ax,ay)){
@@ -383,7 +395,7 @@ function buildGrid(){
 /* ───────── narration / acts ───────── */
 const ACTS={
   1:{badge:"ACT I",btn:"Look inside its mind →",
-     text:`<b>It only reads symbols.</b> This network has been trained to do exactly one thing — predict the next move-symbol in a stream like <span class="dim">↑ ↑ → ↓ …</span>. It has <b>never</b> seen a grid, a map, or a coordinate. <span class="dim">Its mind, on the right, is still a black box.</span>`},
+     text:`<b>It only reads symbols.</b> Picture an agent wandering a tiny grid with a lamp 🔦 hidden on it. The model never sees that world — <b>only the agent's move-trail</b>: <span class="dim">↑ ↓ → ←</span>, plus a <span class="dim">🔦</span> blip when the lamp comes into view. From that alone it was trained to do one thing: predict the next symbol. <span class="dim">It has never seen a grid, a map, or a coordinate — and its mind, on the right, is still a black box.</span>`},
   2:{badge:"ACT II",btn:"Now change its mind →",
      text:`<b>But look what's inside.</b> A linear "mind-reader" lifts the agent's position straight out of its activations — and it's <b>right</b>. Nobody gave it a map; it <b>built one</b> to do its job. The dashed marker is where it <b>believes</b> it is. When it nears the 🔦, it even predicts <b>seeing</b> it.`},
   3:{badge:"ACT III",btn:"What just happened? →",
@@ -405,6 +417,9 @@ function setAct(a){
 /* ───────── loop + wiring ───────── */
 function tick(){ if(playing){ stepToken(); render(); } }
 function startLoop(){ clearInterval(timer); timer=setInterval(tick, speed); }
+// Free the main thread the instant we navigate away or the tab is hidden, so links respond immediately.
+window.addEventListener("pagehide", ()=>{ clearInterval(timer); playing=false; });
+document.addEventListener("visibilitychange", ()=>{ if(document.hidden){ clearInterval(timer); } else if(playing){ startLoop(); } });
 
 function flash(m){const f=$("flash");f.textContent=m;f.className="flash show";clearTimeout(f._t);f._t=setTimeout(()=>f.className="flash",2200);}
 
