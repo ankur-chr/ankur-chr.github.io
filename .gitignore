@@ -1,0 +1,21 @@
+# OS / editor
+.DS_Store
+*.swp
+
+# Python
+__pycache__/
+*.pyc
+
+# Training artifacts (regenerable via offline pipeline; shipped model is web/model.json)
+*.pt
+*.npz
+
+# Local dev / tooling
+.claude/
+
+# Internal planning notes & launch material (not for publication)
+inside-the-model/00-PRIOR-ART.md
+inside-the-model/01-STRATEGY-AND-DESIGN.md
+inside-the-model/02-BUILD-SPEC-OPTION-A.md
+PUBLISH.md
+LAUNCH.md

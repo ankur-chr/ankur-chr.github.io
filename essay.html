@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>What does a machine actually know? · Ankur Chrungoo</title>
+<meta name="description" content="A next-token predictor was never shown a map — yet it built one, used it, and could be made to act on a false one. What that means for trusting AI." />
+<meta property="og:title" content="What does a machine actually know?" />
+<meta property="og:description" content="Watch a 155K-parameter model build a world from words — then change its mind. And why that's the whole game for trusting AI." />
+<style>
+  :root{
+    --bg:#05060a; --bg2:#0a0d18; --ink:#e8ecf8; --muted:#8a93b2; --faint:#475068;
+    --line:rgba(140,160,220,.12); --glass-2:rgba(14,18,34,.6);
+    --accent:#6ee7ff; --accent2:#b794ff;
+    --mono:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth} html,body{margin:0}
+  body{background:
+      radial-gradient(1100px 640px at 85% -12%, rgba(120,90,255,.13), transparent 60%),
+      linear-gradient(180deg,var(--bg),var(--bg2));
+    color:var(--ink); font-family:var(--sans); -webkit-font-smoothing:antialiased; min-height:100vh;}
+  .wrap{max-width:680px;margin:0 auto;padding:30px 22px 90px}
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:46px;font-size:13px}
+  .nav a{color:var(--muted);text-decoration:none;border:1px solid var(--line);padding:8px 13px;border-radius:999px;transition:.18s}
+  .nav a:hover{color:var(--ink);border-color:rgba(110,231,255,.45);background:rgba(110,231,255,.06)}
+
+  .kicker{font-family:var(--mono);font-size:12px;letter-spacing:1px;color:var(--accent);margin-bottom:16px}
+  h1{font-size:clamp(28px,5vw,42px);line-height:1.12;font-weight:680;letter-spacing:-.8px;margin:0 0 18px}
+  .dek{font-size:18px;line-height:1.55;color:var(--muted);margin:0 0 22px}
+  .byline{font-size:13px;color:var(--faint);border-bottom:1px solid var(--line);padding-bottom:26px;margin-bottom:34px}
+  .byline b{color:var(--ink)}
+
+  article{font-family:var(--serif);font-size:18.5px;line-height:1.72;color:#dbe1f2}
+  article p{margin:0 0 22px}
+  article h2{font-family:var(--sans);font-size:21px;font-weight:660;letter-spacing:-.3px;color:#fff;margin:42px 0 14px}
+  article a{color:var(--accent2);text-decoration:none;border-bottom:1px solid rgba(183,148,255,.35)}
+  article a:hover{border-color:var(--accent2)}
+  article em{color:#fff;font-style:italic}
+  article strong{color:#fff;font-weight:600}
+  article .lead{font-size:21px}
+
+  .pull{font-family:var(--sans);font-size:20px;line-height:1.4;font-weight:600;color:#fff;border-left:3px solid var(--accent);
+    padding:6px 0 6px 20px;margin:30px 0}
+  .demo{display:block;text-decoration:none;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--glass-2);margin:30px 0;transition:.2s;font-family:var(--sans)}
+  .demo:hover{border-color:rgba(110,231,255,.45);transform:translateY(-2px)}
+  .demo .bar{height:160px;background:radial-gradient(120% 120% at 60% 30%,#0a0f1f,#06080f);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+  .demo .bar canvas{position:absolute;inset:0}
+  .demo .bar .play{position:relative;z-index:2;font-size:13px;color:var(--accent);font-family:var(--mono);background:rgba(6,8,15,.6);padding:9px 15px;border-radius:999px;border:1px solid rgba(110,231,255,.3)}
+  .demo .cap{padding:14px 18px;font-size:13px;color:var(--muted)} .demo .cap b{color:var(--ink)}
+
+  .scorebox{font-family:var(--sans);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:28px 0;background:var(--glass-2)}
+  .scorebox .t{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--faint);margin-bottom:12px}
+  .scorebox .r{display:flex;justify-content:space-between;font-size:13.5px;padding:7px 0;border-top:1px solid var(--line);color:var(--muted)}
+  .scorebox .r:first-of-type{border-top:0}
+  .scorebox .r b{color:var(--accent);font-family:var(--mono)}
+
+  .endnote{font-family:var(--sans);font-size:13px;color:var(--faint);line-height:1.6;border-top:1px solid var(--line);margin-top:48px;padding-top:24px}
+  .endnote a{color:var(--muted)}
+  .sig{font-family:var(--sans);margin-top:40px;display:flex;align-items:center;gap:12px}
+  .sig canvas{width:40px;height:40px}
+  .sig div{font-size:13px;color:var(--muted)} .sig b{color:var(--ink);display:block}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="nav"><a href="index.html">↖ home</a><a href="inside-the-model/web/world-inside.html">▶ the live demo</a></div>
+
+  <div class="kicker">INSIDE THE MODEL · №1</div>
+  <h1>What does a machine actually know?</h1>
+  <p class="dek">A network that was only ever taught to guess the next word was never shown a map. So why did it build one — and then act on a false one when I lied to it?</p>
+  <div class="byline">By <b>Ankur Chrungoo</b> · principal engineer & AI architect · ~10 min read</div>
+
+  <article>
+    <p class="lead">There's a comforting story people tell about large language models: that they are "just predicting the next
+      token." Glorified autocomplete. A stochastic parrot with no idea what it's saying. It's comforting because if a model
+      doesn't <em>understand</em> anything, you don't have to worry too much about what it believes.</p>
+
+    <p>I want to show you why that story is incomplete — not with an argument, but with something you can run in your browser
+      in the next sixty seconds.</p>
+
+    <h2>An experiment you can poke</h2>
+
+    <p>I trained a deliberately tiny neural network — about <strong>155,000 parameters</strong>, small enough to dissect
+      completely. Its entire universe is a stream of symbols describing an agent shuffling around a grid: <em>up, up, right,
+      down…</em> It is trained to do exactly one thing — predict the next move. It is <strong>never</strong> shown a picture
+      of the grid, never given a coordinate, never told the rules. Just the symbols.</p>
+
+    <p>By the "just autocomplete" story, it should learn some shallow statistics of which symbol tends to follow which, and
+      stop there. It does not.</p>
+
+    <a class="demo" href="inside-the-model/web/world-inside.html">
+      <div class="bar"><canvas id="demoCanvas" width="640" height="160"></canvas><span class="play">▶ open the live experience</span></div>
+      <div class="cap"><b>The World Inside</b> — read its mind, then change it. Runs entirely in your browser.</div>
+    </a>
+
+    <p>When you point a simple "mind-reader" — a linear probe — at the network's internal activations, the agent's
+      <strong>position on the grid pops right out</strong>, with 98.8% accuracy. Nobody put it there. To get good at guessing
+      the next move, the model had no choice but to <em>build a model of the world the symbols describe</em> and keep it in
+      its head. You can watch it do this, live: as it reads, a map it was never given assembles itself.</p>
+
+    <p class="pull">It didn't memorize sequences. It reconstructed the world that produced them.</p>
+
+    <p>And it isn't a decorative coincidence. The model never predicts a move that would walk it through a wall — 100% of the
+      time — because it <em>knows where it is</em>. The inner world isn't a souvenir; it's load-bearing.</p>
+
+    <h2>Now lie to it</h2>
+
+    <p>Here's where it stops being cute. Because the world model lives in a specific place in the activations, I can
+      <strong>reach in and overwrite it</strong> — a technique called activation patching. In the demo, you do this by
+      clicking a cell: you implant the false belief <em>"you are over here."</em></p>
+
+    <p>The model then <strong>acts on the lie</strong>. It starts refusing moves that are only blocked <em>where it now thinks
+      it is</em>. Place its false belief next to a landmark, and it will confidently report <em>seeing</em> that landmark —
+      one that, in reality, is nowhere near it. A hallucination, on command, 99.7% of the time. Its behavior is steered not by
+      the world, but by its <em>belief</em> about the world. That belief is causal. And it can be edited.</p>
+
+    <div class="scorebox">
+      <div class="t">measured on the actual shipped model — reproduce it yourself</div>
+      <div class="r"><span>Position decodable from activations</span><b>98.8%</b></div>
+      <div class="r"><span>Never predicts an illegal move</span><b>100%</b></div>
+      <div class="r"><span>Editing its belief changes its behavior</span><b>100%</b></div>
+      <div class="r"><span>Hallucinates a landmark on command</span><b>99.7%</b></div>
+    </div>
+
+    <h2>"But it's a toy"</h2>
+
+    <p>It is — on purpose. I used a tiny model precisely because it's small enough to <em>prove</em> the whole chain
+      end-to-end, and to run live in your browser with no server and nothing to take on faith. But the phenomenon is not a
+      toy. It is documented all the way up.</p>
+
+    <p>A transformer trained only on <a href="https://arxiv.org/abs/2210.13382">Othello moves builds the board</a> in its
+      activations, and editing that internal board changes how it plays. Llama-class models contain a literal, linear
+      <a href="https://arxiv.org/abs/2310.02207">map of the Earth and a timeline of history</a> — real latitudes and
+      longitudes, recoverable with a ruler. When Anthropic amplified a single internal feature, Claude became
+      <a href="https://www.anthropic.com/news/golden-gate-claude">obsessed with the Golden Gate Bridge</a>. The difference
+      between my 155K-parameter grid-walker and a frontier model is scale and richness — not the existence of an inner world.</p>
+
+    <h2>Why I care, and why you should</h2>
+
+    <p>I've spent close to twenty years building software systems, and the last few deep in AI. The thing that keeps me up is
+      not whether these systems are powerful — they obviously are — but whether we can <em>trust</em> them in places where
+      being wrong is expensive. In banking, in healthcare, in anything regulated, <strong>"the model said so" is not an
+      answer.</strong> We need to know what it believes, why, and whether that belief tracks reality.</p>
+
+    <p>This little demo is a microscope on exactly that question. It shows, concretely, that a model's behavior flows from an
+      internal representation we can <em>locate, read, and change.</em> That's not a threat — it's the most hopeful thing in
+      AI right now. The same handle that lets me make a toy hallucinate is the handle that lets us audit, correct, and govern
+      systems we'd otherwise have to take on faith.</p>
+
+    <p class="pull">Interpretability isn't an academic luxury. It's the difference between deploying a black box and deploying
+      something you can be held accountable for.</p>
+
+    <p>So the next time someone tells you a model is "just predicting the next token," you can agree — and then point out that
+      to predict the next token <em>well</em>, it had to build a world. The interesting question was never whether it
+      understands. It's whether <em>we</em> can understand <em>it</em>.</p>
+
+    <p>I think we can. And I think the best way to convince people is to let them hold the thing in their hands. That's what
+      this series is for.</p>
+
+    <div class="sig">
+      <canvas id="sigLogo" width="80" height="80"></canvas>
+      <div><b>Ankur Chrungoo</b>Principal engineer & AI architect · MSc AI, Queen Mary University of London</div>
+    </div>
+
+    <div class="endnote">
+      <p><strong>Next in the series (№2):</strong> instead of a 155K-parameter toy, we'll decode the real, accurate world-map
+      hidden inside an actual large language model — and render it. <a href="index.html#work">Subscribe on the homepage</a> to get it.</p>
+      <p>The model, the training code, and every test above are open-source and reproducible:
+        <a href="https://github.com/ankur-chr/ankur-chr.github.io">github.com/ankur-chr/ankur-chr.github.io</a>.
+        Built as a static, offline, single-file experience — no server ever sees your interaction.</p>
+    </div>
+  </article>
+</div>
+
+<script>
+function spin(c,n,base){const x=c.getContext("2d"),W=c.width,H=c.height;let t=0;(function f(){t+=0.02;x.clearRect(0,0,W,H);
+  for(let i=0;i<n;i++){const a=t+i*Math.PI*2/n,r=base+i*(Math.min(W,H)*0.5-base)/n;const px=W/2+Math.cos(a)*r,py=H/2+Math.sin(a)*r;
+  x.beginPath();x.fillStyle=`hsla(${(i*36+t*50)%360},90%,68%,.85)`;x.shadowBlur=10;x.shadowColor=x.fillStyle;x.arc(px,py,2.1,0,7);x.fill();}
+  x.shadowBlur=0;requestAnimationFrame(f);})();}
+spin(document.getElementById("sigLogo"),8,9);
+// subtle particle field in the demo card
+(function(){const c=document.getElementById("demoCanvas"),x=c.getContext("2d");const W=c.width,H=c.height;
+  const pts=Array.from({length:40},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,h:Math.random()*360}));
+  (function f(){x.clearRect(0,0,W,H);for(const p of pts){p.x=(p.x+p.vx+W)%W;p.y=(p.y+p.vy+H)%H;p.h=(p.h+.3)%360;
+    x.beginPath();x.fillStyle=`hsla(${p.h},85%,68%,.5)`;x.arc(p.x,p.y,1.4,0,7);x.fill();}
+    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,dd=dx*dx+dy*dy;
+      if(dd<2600){x.strokeStyle=`rgba(120,150,255,${.12*(1-dd/2600)})`;x.lineWidth=.6;x.beginPath();x.moveTo(pts[i].x,pts[i].y);x.lineTo(pts[j].x,pts[j].y);x.stroke();}}
+    requestAnimationFrame(f);})();})();
+</script>
+</body>
+</html>

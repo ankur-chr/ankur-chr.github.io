@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ÆTHER · an AI-native transceiver</title>
+<style>
+  :root{
+    --bg:#05060a;
+    --bg2:#0a0d18;
+    --ink:#e8ecf8;
+    --muted:#7c86a8;
+    --faint:#475068;
+    --line:rgba(140,160,220,.12);
+    --glass:rgba(20,26,46,.55);
+    --glass-2:rgba(14,18,34,.6);
+    --accent:#6ee7ff;
+    --accent2:#b794ff;
+    --good:#3ee6a0;
+    --bad:#ff6b8b;
+    --glow:0 0 0 1px rgba(110,231,255,.0), 0 8px 40px rgba(90,120,255,.10);
+    --mono:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    background:
+      radial-gradient(1200px 700px at 78% -10%, rgba(120,90,255,.16), transparent 60%),
+      radial-gradient(1000px 600px at 8% 110%, rgba(40,200,255,.12), transparent 55%),
+      linear-gradient(180deg,var(--bg),var(--bg2));
+    color:var(--ink);
+    font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;
+    min-height:100%;
+    overflow-x:hidden;
+  }
+  /* faint moving grid */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:
+      linear-gradient(rgba(120,150,255,.05) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(120,150,255,.05) 1px,transparent 1px);
+    background-size:46px 46px;
+    mask-image:radial-gradient(circle at 50% 35%,#000 0%,transparent 78%);
+    animation:drift 24s linear infinite;
+  }
+  @keyframes drift{from{background-position:0 0,0 0}to{background-position:46px 92px,46px 92px}}
+
+  .wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:40px 24px 80px}
+
+  header.top{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:30px}
+  .brand{display:flex;align-items:center;gap:14px}
+  .mark{width:46px;height:46px;position:relative;flex:0 0 auto}
+  .title h1{margin:0;font-size:21px;letter-spacing:.5px;font-weight:650}
+  .title h1 .ae{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .title p{margin:2px 0 0;font-size:12.5px;color:var(--muted);letter-spacing:.2px}
+  .pill{font-family:var(--mono);font-size:11px;color:var(--accent);border:1px solid var(--line);
+    background:rgba(110,231,255,.06);padding:7px 12px;border-radius:999px;display:flex;align-items:center;gap:8px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--good);box-shadow:0 0 10px var(--good);animation:pulse 2s infinite}
+  @keyframes pulse{50%{opacity:.35}}
+
+  .lede{max-width:760px;margin:0 0 26px;color:var(--muted);font-size:14.5px;line-height:1.6}
+  .lede b{color:var(--ink);font-weight:600}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:900px){.grid{grid-template-columns:1fr}}
+
+  .card{
+    background:var(--glass);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:20px;
+    backdrop-filter:blur(14px);
+    box-shadow:var(--glow);
+    position:relative;
+    overflow:hidden;
+  }
+  .card h2{margin:0 0 4px;font-size:12px;letter-spacing:1.6px;text-transform:uppercase;color:var(--muted);font-weight:650;display:flex;align-items:center;gap:9px}
+  .card .sub{font-size:12px;color:var(--faint);margin:0 0 16px}
+  .tag{font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:6px;border:1px solid var(--line)}
+  .tag.h{color:#ffd28a;background:rgba(255,200,120,.06)}
+  .tag.m{color:var(--accent);background:rgba(110,231,255,.06)}
+
+  textarea{
+    width:100%;min-height:128px;resize:vertical;
+    background:rgba(4,6,12,.6);border:1px solid var(--line);border-radius:12px;
+    color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;padding:14px;
+    outline:none;transition:border .2s,box-shadow .2s;
+  }
+  textarea:focus{border-color:rgba(110,231,255,.5);box-shadow:0 0 0 3px rgba(110,231,255,.10)}
+  textarea::placeholder{color:var(--faint)}
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .chip{font-size:12px;color:var(--muted);border:1px solid var(--line);background:rgba(255,255,255,.02);
+    padding:6px 11px;border-radius:999px;cursor:pointer;transition:.18s;user-select:none}
+  .chip:hover{color:var(--ink);border-color:rgba(110,231,255,.45);background:rgba(110,231,255,.07);transform:translateY(-1px)}
+
+  .stats{display:flex;gap:18px;margin-top:16px;flex-wrap:wrap}
+  .stat{display:flex;flex-direction:column;gap:2px}
+  .stat b{font-family:var(--mono);font-size:18px;color:var(--ink);font-weight:600;letter-spacing:.5px}
+  .stat span{font-size:10.5px;color:var(--faint);text-transform:uppercase;letter-spacing:.8px}
+  .stat b.acc{color:var(--accent)}
+
+  /* canvas viewport */
+  .viewport{position:relative;width:100%;aspect-ratio:16/10;border-radius:14px;overflow:hidden;
+    background:radial-gradient(120% 120% at 50% 40%,#0a0f1f,#05070e);border:1px solid var(--line)}
+  canvas{display:block;width:100%;height:100%}
+  .vp-label{position:absolute;left:12px;top:11px;font-family:var(--mono);font-size:10px;letter-spacing:1px;
+    color:var(--faint);text-transform:uppercase;display:flex;align-items:center;gap:7px}
+  .vp-label .lv{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);animation:pulse 1.4s infinite}
+  .vp-right{position:absolute;right:12px;top:11px;font-family:var(--mono);font-size:10px;color:var(--faint)}
+
+  .wire{
+    margin-top:14px;background:rgba(4,6,12,.7);border:1px solid var(--line);border-radius:12px;
+    padding:14px;font-size:19px;line-height:1.55;letter-spacing:3px;color:#cdd6ff;
+    max-height:120px;overflow:auto;word-break:break-all;
+    text-shadow:0 0 14px rgba(120,150,255,.35);
+  }
+  .wire.empty{color:var(--faint);font-family:var(--mono);font-size:12px;letter-spacing:0;text-shadow:none}
+
+  .row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+  button.btn{
+    font-family:var(--sans);font-size:13px;font-weight:550;cursor:pointer;
+    color:var(--ink);background:rgba(255,255,255,.04);border:1px solid var(--line);
+    padding:10px 15px;border-radius:10px;transition:.18s;display:flex;align-items:center;gap:8px;
+  }
+  button.btn:hover{border-color:rgba(110,231,255,.5);background:rgba(110,231,255,.08);transform:translateY(-1px)}
+  button.btn.primary{background:linear-gradient(90deg,rgba(110,231,255,.18),rgba(183,148,255,.18));
+    border-color:rgba(110,231,255,.4);color:#eaf6ff}
+  button.btn.primary:hover{background:linear-gradient(90deg,rgba(110,231,255,.3),rgba(183,148,255,.3))}
+  button.btn:active{transform:translateY(0) scale(.98)}
+
+  /* machine view */
+  .machine{margin-top:14px;border:1px solid var(--line);border-radius:12px;overflow:hidden;transition:.3s}
+  .machine .mhead{display:flex;align-items:center;justify-content:space-between;padding:10px 13px;cursor:pointer;
+    background:rgba(255,255,255,.02);font-size:11.5px;letter-spacing:.8px;color:var(--muted);text-transform:uppercase}
+  .machine .mhead b{color:var(--accent);font-family:var(--mono);text-transform:none;letter-spacing:0}
+  .mbody{padding:0 13px;max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s ease}
+  .machine.open .mbody{max-height:420px;padding:13px;overflow:auto}
+  .mbody .ml{font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;margin:0 0 7px}
+  .hex{font-family:var(--mono);font-size:11.5px;color:#9fb0e0;line-height:1.7;word-break:break-all}
+  .hex .magic{color:var(--accent2)}
+  .hex .len{color:#ffd28a}
+  .hex .sum{color:var(--good)}
+  .bits{display:grid;grid-template-columns:repeat(auto-fill,minmax(0,1fr));gap:3px;margin-top:14px}
+  .byte{display:flex;gap:1px}
+  .bit{flex:1;aspect-ratio:1;border-radius:2px;background:rgba(255,255,255,.05)}
+  .bit.on{background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 0 6px rgba(110,231,255,.5)}
+
+  /* decode */
+  .decode-out{margin-top:14px;background:rgba(4,6,12,.6);border:1px solid var(--line);border-radius:12px;padding:16px;min-height:64px;
+    font-size:15.5px;line-height:1.5;color:var(--ink);white-space:pre-wrap;word-break:break-word}
+  .decode-out.empty{color:var(--faint);font-style:italic}
+  .integrity{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;padding:5px 11px;border-radius:999px;margin-top:14px}
+  .integrity.ok{color:var(--good);background:rgba(62,230,160,.08);border:1px solid rgba(62,230,160,.3)}
+  .integrity.err{color:var(--bad);background:rgba(255,107,139,.08);border:1px solid rgba(255,107,139,.3)}
+  .integrity.idle{color:var(--faint);border:1px solid var(--line)}
+
+  .explain{margin-top:34px;display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media(max-width:760px){.explain{grid-template-columns:1fr}}
+  .ex{padding:18px;border:1px solid var(--line);border-radius:16px;background:var(--glass-2)}
+  .ex .n{font-family:var(--mono);font-size:12px;color:var(--accent);margin-bottom:9px}
+  .ex h3{margin:0 0 7px;font-size:14.5px;font-weight:600}
+  .ex p{margin:0;font-size:12.8px;color:var(--muted);line-height:1.6}
+
+  footer{margin-top:40px;text-align:center;color:var(--faint);font-size:11.5px;line-height:1.7}
+  footer code{font-family:var(--mono);color:var(--muted)}
+
+  .flash{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);opacity:0;
+    background:rgba(20,26,46,.95);border:1px solid rgba(110,231,255,.4);color:var(--ink);
+    padding:11px 20px;border-radius:12px;font-size:13px;z-index:50;pointer-events:none;transition:.28s;backdrop-filter:blur(10px)}
+  .flash.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  .arrow{color:var(--faint);text-align:center;font-size:20px;margin:6px 0}
+  @media(max-width:900px){.arrow{display:block}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <div class="mark"><canvas id="logo" width="92" height="92" style="width:46px;height:46px"></canvas></div>
+      <div class="title">
+        <h1><span class="ae">ÆTHER</span> &nbsp;transceiver</h1>
+        <p>a communication channel only a machine can read</p>
+      </div>
+    </div>
+    <div class="pill"><span class="dot"></span> CHANNEL OPEN · 16-symbol carrier</div>
+  </header>
+
+  <p class="lede">
+    Type anything below. ÆTHER folds it into an <b>AI-native carrier</b> — a deterministic field of glyphs
+    with a keystream-scrambled frame, length header and checksum. To you it's <b>alien static</b>; there is no
+    word order, no letters, no spacing you can latch onto. To a machine that knows the grammar it decodes
+    <b>losslessly, byte-for-byte</b>. The right panel proves it: paste the carrier back and watch the meaning return.
+  </p>
+
+  <div class="grid">
+
+    <!-- INPUT -->
+    <section class="card">
+      <h2>① Human input <span class="tag h">you can read this</span></h2>
+      <p class="sub">Plain language goes in. UTF-8, any script, emoji welcome.</p>
+      <textarea id="input" placeholder="Write a message for the machines…">The mind that reads this leaves no fingerprints. Rendezvous at the third gate, when the lattice turns gold.</textarea>
+      <div class="chips" id="chips"></div>
+      <div class="stats">
+        <div class="stat"><b id="s-chars">0</b><span>characters</span></div>
+        <div class="stat"><b id="s-bytes">0</b><span>utf-8 bytes</span></div>
+        <div class="stat"><b id="s-glyphs" class="acc">0</b><span>carrier glyphs</span></div>
+        <div class="stat"><b id="s-entropy">0.0</b><span>bits / glyph</span></div>
+      </div>
+    </section>
+
+    <!-- TRANSMISSION -->
+    <section class="card">
+      <h2>② AI transmission <span class="tag m">machine-only</span></h2>
+      <p class="sub">The same message, rendered in the carrier. A constellation streams it in real time.</p>
+
+      <div class="viewport">
+        <canvas id="scene"></canvas>
+        <div class="vp-label"><span class="lv"></span> live carrier</div>
+        <div class="vp-right" id="vp-nodes">0 nodes</div>
+      </div>
+
+      <div id="wire" class="wire empty">— carrier appears here —</div>
+
+      <div class="row">
+        <button class="btn primary" id="copyBtn">⧉ Copy carrier</button>
+        <button class="btn" id="roundtripBtn">⇄ Send to decoder</button>
+        <button class="btn" id="machineBtn">◫ Machine view</button>
+      </div>
+
+      <div class="machine" id="machine">
+        <div class="mhead" id="mhead"><span>What the machine actually sees</span><b id="m-frame">frame · 0 B</b></div>
+        <div class="mbody">
+          <p class="ml">Transmission frame (hex)</p>
+          <div class="hex" id="hex"></div>
+          <p class="ml" style="margin-top:16px">Bit lattice — every byte, 8 bits</p>
+          <div class="bits" id="bits"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="arrow">↧ &nbsp;round-trip proof&nbsp; ↧</div>
+
+  <!-- DECODE -->
+  <section class="card">
+    <h2>③ Machine decode <span class="tag m">lossless recovery</span></h2>
+    <p class="sub">Paste any ÆTHER carrier here. The grammar reverses it exactly — or flags tampering via checksum.</p>
+    <textarea id="decodeIn" placeholder="Paste an ÆTHER carrier (glyphs) to decode…" style="min-height:84px;font-family:var(--mono);font-size:18px;letter-spacing:2px"></textarea>
+    <div class="decode-out empty" id="decodeOut">— recovered message appears here —</div>
+    <div><span class="integrity idle" id="integrity">○ awaiting carrier</span></div>
+  </section>
+
+  <div class="explain">
+    <div class="ex">
+      <div class="n">01 · why you can't read it</div>
+      <h3>No human handholds</h3>
+      <p>A keystream XORs every byte before encoding, so the same letter never maps to the same glyph twice.
+      There's no letter frequency, no word boundaries, no repetition for your eyes to exploit. It is engineered to defeat human pattern-matching.</p>
+    </div>
+    <div class="ex">
+      <div class="n">02 · why a machine can</div>
+      <h3>A strict grammar</h3>
+      <p>The carrier is a framed packet: <code>magic · version · length · scrambled payload · checksum</code>,
+      each byte split into two glyphs from a 16-symbol alphabet. Given the rules, decoding is pure arithmetic — deterministic and exact.</p>
+    </div>
+    <div class="ex">
+      <div class="n">03 · it's really reversible</div>
+      <h3>Provable, not decorative</h3>
+      <p>This isn't art pretending to mean something. Hit <b>Send to decoder</b> and the original text returns
+      verbatim, checksum-verified. Change a single glyph and integrity fails — exactly as a machine channel should.</p>
+    </div>
+  </div>
+
+  <footer>
+    ÆTHER · self-contained, offline, no network. Carrier alphabet <code id="alpha-foot"></code> ·
+    frame <code>0xAE 0x01 LEN … SUM</code> · keystream LCG(0x9E3779B9 ⊕ len).
+  </footer>
+</div>
+
+<div class="flash" id="flash"></div>
+
+<script>
+"use strict";
+
+/* ───────────────────────── CODEC ─────────────────────────
+   Reversible, self-contained. A message becomes a framed packet
+   whose bytes are scrambled with a deterministic keystream and
+   rendered as pairs of glyphs from a 16-symbol alphabet.        */
+
+const ALPHABET = [..."◆◇◈○●◐◑◉▲▽◤◢▣❖✦⬡"];   // 16 distinct, widely-supported glyphs
+const IDX = new Map(ALPHABET.map((g,i)=>[g,i]));
+const MAGIC = 0xAE, VERSION = 0x01, SEED = 0x9E3779B9;
+
+// 8-bit keystream from a fast LCG, seeded by the payload length
+function keystream(len){
+  let s = (SEED ^ len) >>> 0;
+  return () => { s = (Math.imul(s,1664525) + 1013904223) >>> 0; return (s >>> 24) & 0xff; };
+}
+
+function encode(text){
+  const bytes = Array.from(new TextEncoder().encode(text));
+  const len = bytes.length;
+  const checksum = bytes.reduce((a,b)=>(a+b)&0xff, 0);
+  const ks = keystream(len);
+  const payload = bytes.map(b => b ^ ks());
+  const frame = [MAGIC, VERSION, (len>>8)&0xff, len&0xff, ...payload, checksum];
+  let out = "";
+  for (const b of frame) out += ALPHABET[(b>>4)&0xf] + ALPHABET[b&0xf];
+  return { carrier: out, frame };
+}
+
+function decode(carrier){
+  const nibs = Array.from(carrier).filter(c=>IDX.has(c)).map(c=>IDX.get(c));
+  if (nibs.length < 10) throw new Error("too short to be a carrier");
+  if (nibs.length % 2) nibs.pop();
+  const frame = [];
+  for (let i=0;i<nibs.length;i+=2) frame.push((nibs[i]<<4)|nibs[i+1]);
+  if (frame[0] !== MAGIC) throw new Error("missing ÆTHER magic byte — not a valid carrier");
+  const len = (frame[2]<<8)|frame[3];
+  if (frame.length < 4 + len + 1) throw new Error("frame truncated");
+  const payload = frame.slice(4, 4+len);
+  const checksum = frame[4+len];
+  const ks = keystream(len);
+  const bytes = payload.map(b => b ^ ks());
+  const sum = bytes.reduce((a,b)=>(a+b)&0xff, 0);
+  const text = new TextDecoder("utf-8",{fatal:false}).decode(new Uint8Array(bytes));
+  return { text, ok: sum === checksum, len, frame };
+}
+
+/* ───────────────────────── DOM ───────────────────────── */
+const $ = id => document.getElementById(id);
+const input = $("input"), wire = $("wire");
+let currentFrame = [];
+
+const SAMPLES = [
+  "Meet me where the river forgets its name.",
+  "The password is the color you dreamt last night.",
+  "Initiate handshake. Mirror my entropy. Trust the checksum, not the words. 🜂",
+  "All human language is lossy compression of something we cannot say.",
+];
+
+function setChips(){
+  const c = $("chips");
+  SAMPLES.forEach(s=>{
+    const el = document.createElement("div");
+    el.className = "chip";
+    el.textContent = "“" + (s.length>34 ? s.slice(0,32)+"…" : s) + "”";
+    el.onclick = () => { input.value = s; refresh(); input.focus(); };
+    c.appendChild(el);
+  });
+}
+
+function shannon(bytes){
+  if (!bytes.length) return 0;
+  const f = new Array(256).fill(0);
+  for (const b of bytes) f[b]++;
+  let h = 0;
+  for (const n of f){ if(!n) continue; const p = n/bytes.length; h -= p*Math.log2(p); }
+  return h;
+}
+
+function renderMachine(frame){
+  const hex = $("hex");
+  hex.innerHTML = frame.map((b,i)=>{
+    const h = b.toString(16).padStart(2,"0").toUpperCase();
+    let cls = "";
+    if (i===0||i===1) cls="magic";
+    else if (i===2||i===3) cls="len";
+    else if (i===frame.length-1) cls="sum";
+    return `<span class="${cls}">${h}</span>`;
+  }).join(" ");
+
+  const bits = $("bits");
+  bits.innerHTML = "";
+  frame.forEach(b=>{
+    const byte = document.createElement("div");
+    byte.className = "byte";
+    for (let i=7;i>=0;i--){
+      const bit = document.createElement("div");
+      bit.className = "bit" + (((b>>i)&1) ? " on":"");
+      byte.appendChild(bit);
+    }
+    bits.appendChild(byte);
+  });
+  $("m-frame").textContent = `frame · ${frame.length} B`;
+}
+
+function refresh(){
+  const text = input.value;
+  const { carrier, frame } = encode(text);
+  currentFrame = frame;
+
+  if (carrier){
+    wire.textContent = carrier;
+    wire.classList.remove("empty");
+  } else {
+    wire.textContent = "— carrier appears here —";
+    wire.classList.add("empty");
+  }
+
+  const bytes = Array.from(new TextEncoder().encode(text));
+  $("s-chars").textContent = [...text].length;
+  $("s-bytes").textContent = bytes.length;
+  $("s-glyphs").textContent = carrier.length;
+  $("s-entropy").textContent = shannon(frame).toFixed(2);
+  $("vp-nodes").textContent = frame.length + " nodes";
+
+  renderMachine(frame);
+  scene.setFrame(frame);
+}
+
+/* ───────────────────────── DECODER PANEL ───────────────────────── */
+const decodeIn = $("decodeIn"), decodeOut = $("decodeOut"), integrity = $("integrity");
+function runDecode(){
+  const v = decodeIn.value.trim();
+  if (!v){
+    decodeOut.textContent = "— recovered message appears here —";
+    decodeOut.classList.add("empty");
+    integrity.className = "integrity idle";
+    integrity.textContent = "○ awaiting carrier";
+    return;
+  }
+  try{
+    const { text, ok, len } = decode(v);
+    decodeOut.textContent = text || "(empty message)";
+    decodeOut.classList.remove("empty");
+    if (ok){
+      integrity.className = "integrity ok";
+      integrity.textContent = `✓ checksum verified · ${len} bytes recovered losslessly`;
+    } else {
+      integrity.className = "integrity err";
+      integrity.textContent = "✗ checksum mismatch · carrier was altered";
+    }
+  } catch(e){
+    decodeOut.textContent = "Could not decode this carrier.";
+    decodeOut.classList.remove("empty");
+    integrity.className = "integrity err";
+    integrity.textContent = "✗ " + e.message;
+  }
+}
+
+/* ───────────────────────── FLASH ───────────────────────── */
+let flashT;
+function flash(msg){
+  const f = $("flash");
+  f.textContent = msg; f.classList.add("show");
+  clearTimeout(flashT); flashT = setTimeout(()=>f.classList.remove("show"), 1700);
+}
+
+/* ───────────────────────── CONSTELLATION ─────────────────────────
+   Phyllotaxis layout seeded by the frame bytes; an animated pulse
+   streams along the byte sequence to evoke a live transmission.    */
+const scene = (() => {
+  const canvas = $("scene"), ctx = canvas.getContext("2d");
+  let nodes = [], W=0, H=0, dpr=1, t=0, raf=null;
+
+  function resize(){
+    const r = canvas.getBoundingClientRect();
+    dpr = Math.min(window.devicePixelRatio||1, 2);
+    W = r.width; H = r.height;
+    canvas.width = W*dpr; canvas.height = H*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+
+  function setFrame(frame){
+    const cx=W/2, cy=H/2;
+    const golden = Math.PI*(3-Math.sqrt(5));
+    const n = frame.length;
+    const spacing = Math.min(W,H) / (2.1*Math.sqrt(Math.max(n,1)) + 2);
+    nodes = frame.map((val,i)=>{
+      const ang = i*golden + (val/255)*0.9;
+      const rad = spacing*Math.sqrt(i+0.6);
+      return {
+        x: cx + Math.cos(ang)*rad,
+        y: cy + Math.sin(ang)*rad,
+        baseAng: ang, rad,
+        hue: (val*1.43 + i*5) % 360,
+        size: 1.6 + (val & 7)*0.55,
+        val,
+        link: (i + 1 + (val % Math.max(n-1,1))) % Math.max(n,1),
+      };
+    });
+  }
+
+  function draw(){
+    t += 0.016;
+    ctx.clearRect(0,0,W,H);
+    if (!nodes.length){ raf = requestAnimationFrame(draw); return; }
+
+    const cx=W/2, cy=H/2;
+    const rot = t*0.05;
+
+    // slow global rotation for life
+    const pts = nodes.map(nd=>{
+      const a = nd.baseAng + rot;
+      return { x: cx + Math.cos(a)*nd.rad, y: cy + Math.sin(a)*nd.rad, nd };
+    });
+
+    // value-linked edges (faint)
+    ctx.lineWidth = 1;
+    for (let i=0;i<pts.length;i++){
+      const a = pts[i], b = pts[nodes[i].link];
+      if (!b) continue;
+      ctx.strokeStyle = `hsla(${nodes[i].hue},80%,65%,0.05)`;
+      ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+    }
+
+    // sequential spine
+    ctx.beginPath();
+    pts.forEach((p,i)=> i? ctx.lineTo(p.x,p.y) : ctx.moveTo(p.x,p.y));
+    ctx.strokeStyle = "rgba(120,150,255,0.10)";
+    ctx.lineWidth = 1; ctx.stroke();
+
+    // streaming pulse along the sequence
+    const speed = 14; // nodes/sec
+    const head = (t*speed) % pts.length;
+    const trail = 26;
+    for (let k=0;k<trail;k++){
+      const idx = Math.floor(head - k);
+      if (idx < 0 || idx >= pts.length) continue;
+      const p = pts[idx];
+      const a = (1 - k/trail);
+      ctx.fillStyle = `hsla(${(190 + t*20)%360},100%,70%,${a*0.5})`;
+      ctx.beginPath(); ctx.arc(p.x,p.y, 1.4 + a*2.2, 0, 7); ctx.fill();
+    }
+
+    // nodes
+    for (let i=0;i<pts.length;i++){
+      const p = pts[i], nd = nodes[i];
+      const near = ((i - head + pts.length) % pts.length);
+      const lit = near < 24 ? (1 - near/24) : 0;
+      const glow = 0.35 + lit*0.65;
+      ctx.shadowBlur = 8 + lit*16;
+      ctx.shadowColor = `hsla(${nd.hue},90%,65%,${0.6})`;
+      ctx.fillStyle = `hsla(${nd.hue},85%,${60+lit*15}%,${glow})`;
+      ctx.beginPath(); ctx.arc(p.x,p.y, nd.size + lit*1.8, 0, 7); ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+
+    raf = requestAnimationFrame(draw);
+  }
+
+  const ro = new ResizeObserver(()=>{ resize(); if(currentFrame.length) setFrame(currentFrame); });
+  ro.observe(canvas);
+  resize();
+  draw();
+  return { setFrame, resize };
+})();
+
+/* ───────────────────────── LOGO ───────────────────────── */
+(function logo(){
+  const c=$("logo"), x=c.getContext("2d"); let t=0;
+  function f(){
+    t+=0.02; x.clearRect(0,0,92,92);
+    const cx=46,cy=46;
+    for(let i=0;i<7;i++){
+      const a=t+i*Math.PI*2/7;
+      const r=14+i*3.6;
+      const px=cx+Math.cos(a)*r, py=cy+Math.sin(a)*r;
+      x.beginPath();
+      x.fillStyle=`hsla(${(i*30+t*40)%360},90%,68%,0.9)`;
+      x.shadowBlur=10; x.shadowColor=x.fillStyle;
+      x.arc(px,py,2.4,0,7); x.fill();
+    }
+    x.shadowBlur=0;
+    requestAnimationFrame(f);
+  }
+  f();
+})();
+
+/* ───────────────────────── WIRING ───────────────────────── */
+function debounce(fn,ms){ let h; return (...a)=>{clearTimeout(h);h=setTimeout(()=>fn(...a),ms);}; }
+
+input.addEventListener("input", debounce(refresh, 90));
+decodeIn.addEventListener("input", debounce(runDecode, 120));
+
+$("copyBtn").onclick = async () => {
+  if (!currentFrame.length) return;
+  const { carrier } = encode(input.value);
+  try { await navigator.clipboard.writeText(carrier); flash("Carrier copied to clipboard ⧉"); }
+  catch { flash("Copy blocked — select & ⌘C the carrier"); }
+};
+
+$("roundtripBtn").onclick = () => {
+  const { carrier } = encode(input.value);
+  decodeIn.value = carrier;
+  runDecode();
+  flash("Carrier sent to decoder ⇄");
+  decodeIn.scrollIntoView({behavior:"smooth", block:"center"});
+};
+
+$("machineBtn").onclick = () => $("machine").classList.toggle("open");
+$("mhead").onclick = () => $("machine").classList.toggle("open");
+
+$("alpha-foot").textContent = ALPHABET.join("");
+
+setChips();
+refresh();
+</script>
+</body>
+</html>

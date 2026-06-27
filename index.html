@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ankur Chrungoo · making machine minds visible</title>
+<meta name="description" content="Principal engineer & AI architect. I turn frontier AI ideas into things you can see and play with — starting with what's actually happening inside the model." />
+<meta property="og:title" content="Ankur Chrungoo · making machine minds visible" />
+<meta property="og:description" content="Interactive arguments about what's really happening inside AI models. Watch a machine build a world from words — then change its mind." />
+<meta property="og:type" content="website" />
+<style>
+  :root{
+    --bg:#05060a; --bg2:#0a0d18; --ink:#e8ecf8; --muted:#7c86a8; --faint:#475068;
+    --line:rgba(140,160,220,.12);
+    --glass:rgba(20,26,46,.55); --glass-2:rgba(14,18,34,.6);
+    --accent:#6ee7ff; --accent2:#b794ff; --good:#3ee6a0; --warn:#ffd28a;
+    --glow:0 8px 40px rgba(90,120,255,.10);
+    --mono:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  html,body{margin:0;height:100%}
+  body{background:
+      radial-gradient(1300px 760px at 82% -12%, rgba(120,90,255,.18), transparent 60%),
+      radial-gradient(1100px 640px at 4% 108%, rgba(40,200,255,.12), transparent 55%),
+      linear-gradient(180deg,var(--bg),var(--bg2));
+    color:var(--ink); font-family:var(--sans); -webkit-font-smoothing:antialiased; min-height:100%; overflow-x:hidden;}
+  body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:linear-gradient(rgba(120,150,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(120,150,255,.05) 1px,transparent 1px);
+    background-size:48px 48px;mask-image:radial-gradient(circle at 50% 20%,#000 0%,transparent 80%);animation:drift 26s linear infinite}
+  @keyframes drift{from{background-position:0 0,0 0}to{background-position:48px 96px,48px 96px}}
+
+  .wrap{position:relative;z-index:1;max-width:1020px;margin:0 auto;padding:30px 22px 70px}
+  header.top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:42px}
+  .brand{display:flex;align-items:center;gap:13px}
+  .mark{width:42px;height:42px;flex:0 0 auto}
+  .brand .nm{font-size:15px;font-weight:650;letter-spacing:.2px}
+  .brand .rl{font-size:11.5px;color:var(--muted)}
+  nav.links{display:flex;gap:8px;flex-wrap:wrap}
+  nav.links a{font-size:12.5px;color:var(--muted);text-decoration:none;border:1px solid var(--line);padding:8px 13px;border-radius:999px;transition:.18s}
+  nav.links a:hover{color:var(--ink);border-color:rgba(110,231,255,.45);background:rgba(110,231,255,.06)}
+
+  /* hero */
+  .hero{margin:6px 0 54px}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:1px;color:var(--accent);margin-bottom:18px;display:flex;align-items:center;gap:9px}
+  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--good);box-shadow:0 0 10px var(--good);animation:pulse 2s infinite}
+  @keyframes pulse{50%{opacity:.35}}
+  .hero h1{margin:0;font-size:clamp(30px,5.4vw,52px);line-height:1.07;font-weight:680;letter-spacing:-1px}
+  .hero h1 .g{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero p.lede{margin:22px 0 0;max-width:660px;font-size:16px;line-height:1.6;color:var(--muted)}
+  .hero p.lede b{color:var(--ink);font-weight:600}
+  .hero .cta{display:flex;gap:12px;margin-top:28px;flex-wrap:wrap}
+  .btn{font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px;
+    padding:12px 18px;border-radius:11px;border:1px solid var(--line);color:var(--ink);transition:.18s}
+  .btn.primary{background:linear-gradient(90deg,rgba(110,231,255,.2),rgba(183,148,255,.2));border-color:rgba(110,231,255,.45)}
+  .btn:hover{transform:translateY(-1px);border-color:rgba(110,231,255,.55);background:rgba(110,231,255,.08)}
+  .btn.primary:hover{background:linear-gradient(90deg,rgba(110,231,255,.32),rgba(183,148,255,.32))}
+
+  .sechead{display:flex;align-items:baseline;gap:12px;margin:0 0 18px}
+  .sechead h2{margin:0;font-size:13px;letter-spacing:1.6px;text-transform:uppercase;color:var(--muted);font-weight:650}
+  .sechead .ln{flex:1;height:1px;background:var(--line)}
+
+  /* featured */
+  .feature{display:grid;grid-template-columns:1.1fr 1fr;gap:0;border:1px solid var(--line);border-radius:20px;overflow:hidden;background:var(--glass);backdrop-filter:blur(14px);box-shadow:var(--glow);margin-bottom:22px}
+  @media(max-width:760px){.feature{grid-template-columns:1fr}}
+  .feature .copy{padding:30px}
+  .feature .tag{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.5px;margin-bottom:12px}
+  .feature h3{margin:0 0 10px;font-size:25px;font-weight:680;letter-spacing:-.4px}
+  .feature p{margin:0 0 18px;font-size:14px;line-height:1.6;color:var(--muted)}
+  .feature p b{color:var(--ink)}
+  .feature .frame{position:relative;border-left:1px solid var(--line);min-height:280px;background:radial-gradient(120% 120% at 60% 30%,#0a0f1f,#06080f);overflow:hidden}
+  @media(max-width:760px){.feature .frame{border-left:none;border-top:1px solid var(--line);min-height:230px}}
+  .feature iframe{position:absolute;inset:0;width:100%;height:100%;border:0;opacity:.96}
+  .feature .frame .veil{position:absolute;inset:0;cursor:pointer;background:linear-gradient(180deg,transparent 60%,rgba(6,8,15,.5));display:flex;align-items:flex-end;justify-content:center;padding:16px;color:var(--accent);font-size:12.5px;font-family:var(--mono);transition:.2s}
+  .feature .frame .veil:hover{background:rgba(110,231,255,.06)}
+
+  /* grid of others */
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:48px}
+  @media(max-width:640px){.cards{grid-template-columns:1fr}}
+  .card{display:block;text-decoration:none;color:inherit;border:1px solid var(--line);border-radius:16px;padding:22px;background:var(--glass-2);transition:.2s;position:relative;overflow:hidden}
+  .card:hover{transform:translateY(-2px);border-color:rgba(110,231,255,.4);background:rgba(110,231,255,.04)}
+  .card .ico{font-size:22px;margin-bottom:12px}
+  .card h3{margin:0 0 6px;font-size:17px;font-weight:640}
+  .card p{margin:0;font-size:13px;color:var(--muted);line-height:1.55}
+  .card .go{margin-top:14px;font-family:var(--mono);font-size:12px;color:var(--accent)}
+
+  /* essay + about + newsletter */
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:48px}
+  @media(max-width:760px){.split{grid-template-columns:1fr}}
+  .panel{border:1px solid var(--line);border-radius:16px;padding:24px;background:var(--glass)}
+  .panel h3{margin:0 0 10px;font-size:17px}
+  .panel p{margin:0 0 14px;font-size:13.5px;line-height:1.6;color:var(--muted)}
+  .panel p b{color:var(--ink)}
+  .panel a.inline{color:var(--accent2);text-decoration:none;border-bottom:1px solid rgba(183,148,255,.3)}
+
+  .news form{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  .news input{flex:1;min-width:160px;background:rgba(4,6,12,.6);border:1px solid var(--line);border-radius:10px;color:var(--ink);padding:11px 13px;font-size:14px;font-family:var(--sans);outline:none}
+  .news input:focus{border-color:rgba(110,231,255,.5)}
+  .news button{background:linear-gradient(90deg,rgba(110,231,255,.22),rgba(183,148,255,.22));border:1px solid rgba(110,231,255,.45);color:var(--ink);border-radius:10px;padding:11px 16px;font-size:14px;font-weight:600;cursor:pointer}
+  .news .note{font-size:11px;color:var(--faint);margin-top:10px}
+
+  .about .creds{display:flex;flex-direction:column;gap:9px;margin-top:6px}
+  .about .cred{display:flex;gap:10px;font-size:13px;color:var(--muted)}
+  .about .cred b{color:var(--ink);font-weight:600}
+
+  footer{border-top:1px solid var(--line);padding-top:22px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;color:var(--faint);font-size:12px}
+  footer a{color:var(--muted);text-decoration:none} footer a:hover{color:var(--ink)}
+  footer .soc{display:flex;gap:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <canvas id="logo" class="mark" width="84" height="84"></canvas>
+      <div><div class="nm">Ankur Chrungoo</div><div class="rl">Principal Engineer · AI Architect</div></div>
+    </div>
+    <nav class="links">
+      <a href="#work">Work</a>
+      <a href="essay.html">Essay</a>
+      <a href="#about">About</a>
+      <!-- TODO: replace with your real profiles -->
+      <a href="https://github.com/ankur-chr" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://www.linkedin.com/in/ankurchrungoo" target="_blank" rel="noopener">LinkedIn</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="eyebrow"><span class="dot"></span> INTERACTIVE ARGUMENTS ABOUT AI</div>
+    <h1>Machines are quietly building <span class="g">inner worlds</span>.<br>I make them visible — and let you change&nbsp;their&nbsp;mind.</h1>
+    <p class="lede">I'm a principal engineer and AI architect. Most writing about what's happening <i>inside</i> AI models is either
+      hand-waving or unreadable math. I build the third thing: <b>small, rigorous, playable demos</b> that let you
+      <b>see</b> the idea and <b>poke</b> it yourself — backed by real, reproducible evidence.</p>
+    <div class="cta">
+      <a class="btn primary" href="inside-the-model/web/world-inside.html">▶ Watch a model build a world</a>
+      <a class="btn" href="essay.html">Read the essay</a>
+    </div>
+  </section>
+
+  <div id="work" class="sechead"><h2>Inside the Model — a series</h2><span class="ln"></span></div>
+
+  <section class="feature">
+    <div class="copy">
+      <div class="tag">№1 · The World Inside</div>
+      <h3>It only read words. Then it drew a map.</h3>
+      <p>A <b>155,000-parameter</b> network is trained to do one thing: predict the next move-symbol. It is never shown a
+        grid, a map, or a coordinate — yet to do its job it <b>builds a model of the world</b> and hides it in its
+        activations. A linear probe reads that world out, live. Then you <b>reach in and lie to it</b> — and it acts on
+        the false belief, even <b>hallucinating</b> things that aren't there.</p>
+      <p style="color:var(--faint)">Runs entirely in your browser. No server. Every claim backed by a measured test.</p>
+      <a class="btn primary" href="inside-the-model/web/world-inside.html">Open the live demo →</a>
+    </div>
+    <div class="frame">
+      <iframe src="inside-the-model/web/world-inside.html" title="The World Inside" loading="lazy" scrolling="no"></iframe>
+      <a class="veil" href="inside-the-model/web/world-inside.html">click to open full experience ↗</a>
+    </div>
+  </section>
+
+  <div class="cards">
+    <a class="card" href="aquarium.html">
+      <div class="ico">🫧</div>
+      <h3>The Glass Aquarium</h3>
+      <p>Two neural agents start with no shared language and <b>invent one, live</b>, to win a game — a real vocabulary
+        crystallizing out of noise. Genuine emergent communication, trained in your browser.</p>
+      <div class="go">open →</div>
+    </a>
+    <a class="card" href="aether.html">
+      <div class="ico">⟁</div>
+      <h3>ÆTHER transceiver</h3>
+      <p>A reversible "machine-native" language: type anything and it becomes an alien glyph-field humans can't read but
+        a machine decodes perfectly. A study in communication built <b>for machines, not us</b>.</p>
+      <div class="go">open →</div>
+    </a>
+  </div>
+
+  <div class="sechead"><h2>The idea & the audience</h2><span class="ln"></span></div>
+  <div class="split">
+    <div class="panel">
+      <h3>Why this matters</h3>
+      <p>If a toy network builds and uses an internal world model, the AI systems you actually rely on do too — at a scale
+        we can't fully see. That's the whole game in <b>interpretability and AI governance</b>: in high-stakes domains
+        like finance, "the model said so" isn't enough — we need to know <b>what it believes and why</b>.</p>
+      <p>These demos are my way of arguing that case in public — not with opinions, but with things you can run.
+        <a class="inline" href="essay.html">Read the full essay →</a></p>
+    </div>
+    <div class="panel news">
+      <h3>Get the next one</h3>
+      <p>Next in the series: rendering the real, accurate <b>map of Earth</b> hidden inside an actual large language model.
+        Drop your email and I'll send it when it lands.</p>
+      <!-- TODO: point action= at your Buttondown/Substack endpoint, e.g. https://buttondown.email/api/emails/embed-subscribe/YOURNAME -->
+      <form action="https://buttondown.email/api/emails/embed-subscribe/YOUR-NAME" method="post" target="_blank">
+        <input type="email" name="email" placeholder="you@email.com" required />
+        <button type="submit">Subscribe</button>
+      </form>
+      <div class="note">No spam. New interactive deep-dives only. Unsubscribe anytime.</div>
+    </div>
+  </div>
+
+  <div id="about" class="sechead"><h2>About</h2><span class="ln"></span></div>
+  <div class="panel about" style="margin-bottom:42px">
+    <p style="font-size:14px;line-height:1.65;color:var(--muted)">I'm a principal software engineer and AI architect with close to
+      <b style="color:var(--ink)">two decades</b> building real systems, and an
+      <b style="color:var(--ink)">MSc in Artificial Intelligence</b> from Queen Mary University of London. I care about making
+      the most consequential ideas in AI <b style="color:var(--ink)">legible</b> — to engineers, leaders, and anyone who has to
+      trust these systems. This site is where I do that in the open.</p>
+    <div class="creds">
+      <div class="cred">◆ <span><b>~20 years</b> in industry — engineering, architecture, AI systems</span></div>
+      <div class="cred">◆ <span><b>MSc Artificial Intelligence</b>, Queen Mary University of London</span></div>
+      <div class="cred">◆ <span>Focus: <b>interpretability, agentic systems, AI you can trust</b></span></div>
+    </div>
+  </div>
+
+  <footer>
+    <div>© 2026 Ankur Chrungoo · built as static, offline, open-source interactive arguments.</div>
+    <div class="soc">
+      <a href="https://github.com/ankur-chr" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://www.linkedin.com/in/ankurchrungoo" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="mailto:ankur.chrungoo@gmail.com">Email</a>
+    </div>
+  </footer>
+</div>
+
+<script>
+(function(){const c=document.getElementById("logo"),x=c.getContext("2d");let t=0;(function f(){t+=0.02;x.clearRect(0,0,84,84);
+  for(let i=0;i<8;i++){const a=t+i*Math.PI/4,r=10+i*3.2;const px=42+Math.cos(a)*r,py=42+Math.sin(a)*r;
+    x.beginPath();x.fillStyle=`hsla(${(i*40+t*50)%360},90%,68%,.9)`;x.shadowBlur=10;x.shadowColor=x.fillStyle;x.arc(px,py,2.1,0,7);x.fill();}
+  x.shadowBlur=0;requestAnimationFrame(f);})();})();
+</script>
+</body>
+</html>
