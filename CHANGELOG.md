@@ -4,6 +4,23 @@ All notable changes to this project are recorded here. Dates are absolute (YYYY-
 
 ## 2026-06-27
 
+### Credibility pass on copy — grounded the over-stated claims (`index.html`, `essay.html`, `world-inside.html`)
+
+Aligned the on-page wording with the tightened launch copy, removing anthropomorphic
+intent and over-claims while keeping the copy approachable for non-technical readers:
+
+- **Dropped "secretly"** — the demo lede now reads the model "built a map of its world inside —
+  all on its own," which describes emergence without implying the model *intended* to hide anything.
+- **"acts on the lie" → "acts on the false belief"** in the demo's main claim paragraph and the
+  essay's "Now lie to it" section, and the demo lede's "follow the lie" → "follow the false belief."
+  The playful uses of "lie" (the essay's *"Now lie to it"* heading, the interactive flash microcopy,
+  and a JS code comment) are intentionally kept.
+- **Stopped over-stating Gurnee & Tegmark** — "hold a literal, linear map of Earth" / "literal, linear
+  map of the Earth" → "carry linear maps of real-world place and time," framed as a research finding.
+  The "next in series" teasers (`index.html`, `world-inside.html`) follow the same wording.
+
+Text-only edits; verified the demo still boots and runs (no console errors, model reaches ACT I).
+
 ### Privacy-friendly visitor analytics (GoatCounter)
 
 **Cookieless page-visit tracking added to all five pages** — `index.html`, `essay.html`,
