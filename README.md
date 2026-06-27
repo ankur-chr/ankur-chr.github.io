@@ -40,7 +40,7 @@ Every claim is backed by a test that runs **before** any UI was built. Reproduce
 
 - **The Glass Aquarium** — two neural agents start with no shared language and **invent one, live**, to win a
   referential game (speaker via REINFORCE, listener via cross-entropy). Emergent communication, trained in your browser.
-- **ÆTHER** — a reversible "machine-native" glyph language: lossless to a machine, unreadable to a human.
+- **ÆTHER** — a reversible glyph **cipher**: lossless and exact, illegible to the eye but decodable by its rules. A deterministic encoding experiment (no AI/ML) — included as a playful counterpoint to the learned systems above.
 
 ## How it works (and the science it stands on)
 

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>ÆTHER · an AI-native transceiver</title>
+<title>ÆTHER · a reversible glyph cipher</title>
 <style>
   :root{
     --bg:#05060a;
@@ -184,17 +184,18 @@
       <div class="mark"><canvas id="logo" width="92" height="92" style="width:46px;height:46px"></canvas></div>
       <div class="title">
         <h1><span class="ae">ÆTHER</span> &nbsp;transceiver</h1>
-        <p>a communication channel only a machine can read</p>
+        <p>a reversible cipher that turns text into an unreadable glyph-field</p>
       </div>
     </div>
     <div class="pill"><span class="dot"></span> CHANNEL OPEN · 16-symbol carrier</div>
   </header>
 
   <p class="lede">
-    Type anything below. ÆTHER folds it into an <b>AI-native carrier</b> — a deterministic field of glyphs
-    with a keystream-scrambled frame, length header and checksum. To you it's <b>alien static</b>; there is no
-    word order, no letters, no spacing you can latch onto. To a machine that knows the grammar it decodes
-    <b>losslessly, byte-for-byte</b>. The right panel proves it: paste the carrier back and watch the meaning return.
+    Type anything below. ÆTHER folds it into a <b>dense glyph carrier</b> — a deterministic, keystream-scrambled
+    frame with a length header and checksum. To the eye it's <b>alien static</b>: no word order, no letters, no
+    spacing to latch onto. But it's a plain cipher, not magic — anything (or anyone) that knows the grammar
+    decodes it <b>losslessly, byte-for-byte</b>. Paste the carrier back on the right and watch the meaning return.
+    <i>(No AI here — that's the other two pieces; this one is a study in encoding.)</i>
   </p>
 
   <div class="grid">
@@ -215,7 +216,7 @@
 
     <!-- TRANSMISSION -->
     <section class="card">
-      <h2>② AI transmission <span class="tag m">machine-only</span></h2>
+      <h2>② Encoded transmission <span class="tag m">illegible by design</span></h2>
       <p class="sub">The same message, rendered in the carrier. A constellation streams it in real time.</p>
 
       <div class="viewport">
@@ -248,7 +249,7 @@
 
   <!-- DECODE -->
   <section class="card">
-    <h2>③ Machine decode <span class="tag m">lossless recovery</span></h2>
+    <h2>③ Decode &amp; verify <span class="tag m">lossless recovery</span></h2>
     <p class="sub">Paste any ÆTHER carrier here. The grammar reverses it exactly — or flags tampering via checksum.</p>
     <textarea id="decodeIn" placeholder="Paste an ÆTHER carrier (glyphs) to decode…" style="min-height:84px;font-family:var(--mono);font-size:18px;letter-spacing:2px"></textarea>
     <div class="decode-out empty" id="decodeOut">— recovered message appears here —</div>
@@ -263,7 +264,7 @@
       There's no letter frequency, no word boundaries, no repetition for your eyes to exploit. It is engineered to defeat human pattern-matching.</p>
     </div>
     <div class="ex">
-      <div class="n">02 · why a machine can</div>
+      <div class="n">02 · why it always decodes</div>
       <h3>A strict grammar</h3>
       <p>The carrier is a framed packet: <code>magic · version · length · scrambled payload · checksum</code>,
       each byte split into two glyphs from a 16-symbol alphabet. Given the rules, decoding is pure arithmetic — deterministic and exact.</p>
@@ -272,7 +273,7 @@
       <div class="n">03 · it's really reversible</div>
       <h3>Provable, not decorative</h3>
       <p>This isn't art pretending to mean something. Hit <b>Send to decoder</b> and the original text returns
-      verbatim, checksum-verified. Change a single glyph and integrity fails — exactly as a machine channel should.</p>
+      verbatim, checksum-verified. Change a single glyph and integrity fails — exactly as a cipher should.</p>
     </div>
   </div>
 
