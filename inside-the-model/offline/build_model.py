@@ -169,6 +169,12 @@ out=dict(
     cellmean=cellmean.tolist(), cellcount=cellcount.tolist(),
     probe=dict(wx=rx.coef_.astype(np.float32).tolist(), bx=float(rx.intercept_),
                wy=ry.coef_.astype(np.float32).tolist(), by=float(ry.intercept_)),
+    # 49-way linear position classifier (the 98.8% probe). The browser renders the belief
+    # at its EXPECTED position (sum_c P(cell)*coord): accurate like argmax, yet continuous,
+    # so the circle floats and honestly shows uncertainty when it sits between two cells.
+    classifier=dict(w=clf.coef_.astype(np.float32).tolist(),
+                    b=clf.intercept_.astype(np.float32).tolist(),
+                    classes=clf.classes_.astype(int).tolist()),
     parity=parity)
 os.makedirs("../web",exist_ok=True)
 with open("../web/model.json","w") as f: json.dump(out,f)

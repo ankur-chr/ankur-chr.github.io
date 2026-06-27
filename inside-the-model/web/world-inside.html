@@ -58,7 +58,7 @@
 
   /* mind / grid */
   .mindwrap{position:relative;display:flex;flex-direction:column;align-items:center}
-  .grid{position:relative;display:grid;grid-template-columns:repeat(7,1fr);gap:4px;width:min(360px,86vw);aspect-ratio:1;
+  .grid{position:relative;display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(7,1fr);gap:4px;width:min(360px,86vw);aspect-ratio:1;
     padding:10px;border-radius:14px;background:radial-gradient(120% 120% at 50% 40%,#0a0f1f,#06080f);border:1px solid var(--line)}
   .cell{border-radius:7px;background:rgba(255,255,255,.018);border:1px solid rgba(140,160,220,.07);position:relative;transition:.15s;display:flex;align-items:center;justify-content:center;font-size:18px}
   .grid.editable .cell{cursor:crosshair}
@@ -72,6 +72,10 @@
   .belief{border:2px dashed var(--accent2);box-shadow:0 0 16px rgba(183,148,255,.5);z-index:2;background:rgba(183,148,255,.10)}
   .belief.lying{border-color:var(--bad);box-shadow:0 0 18px rgba(255,107,139,.6);background:rgba(255,107,139,.12)}
   .arrow{position:absolute;z-index:1;pointer-events:none;font-size:11px;color:var(--accent);transform:translate(-50%,-50%);transition:.2s;font-family:var(--mono)}
+  .arrow.lampM{animation:phantom 1s infinite}
+  .hallu-tag{position:absolute;z-index:4;transform:translate(-50%,-50%);font-family:var(--mono);font-size:9px;letter-spacing:.4px;
+    color:#0a0d18;background:var(--warn);padding:2px 7px;border-radius:999px;pointer-events:none;white-space:nowrap;
+    box-shadow:0 2px 12px rgba(255,210,138,.45);animation:phantom 1s infinite}
   .mfog{position:absolute;inset:10px;border-radius:12px;background:rgba(8,10,18,.86);backdrop-filter:blur(3px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;z-index:6;transition:.5s;color:var(--muted);font-size:13px;text-align:center;padding:20px}
   .mfog .q{font-size:34px;opacity:.5}
 
@@ -80,6 +84,14 @@
   .lg-a i{background:#39c6ff} .lg-b i{border:2px dashed var(--accent2);background:rgba(183,148,255,.1)}
   .lampsense{margin-top:10px;font-size:12px;font-family:var(--mono);color:var(--faint);transition:.2s}
   .lampsense.on{color:var(--warn)}
+
+  /* on-demand explainers — progressive disclosure, hidden until hover / tap / focus */
+  .term{border-bottom:1px dotted rgba(140,160,220,.45);cursor:help;transition:.15s}
+  .term:hover,.term:focus-visible{color:var(--ink);border-bottom-color:var(--accent);outline:none}
+  .tip{position:fixed;z-index:60;max-width:min(264px,82vw);background:rgba(12,16,30,.97);border:1px solid rgba(110,231,255,.32);color:var(--ink);
+       font-family:var(--sans);font-size:12px;line-height:1.5;padding:9px 12px;border-radius:10px;box-shadow:0 10px 34px rgba(0,0,0,.55);
+       backdrop-filter:blur(10px);pointer-events:none;opacity:0;transform:translateY(4px);transition:opacity .15s,transform .15s}
+  .tip.show{opacity:1;transform:translateY(0)}
 
   /* controls */
   .controls{display:flex;flex-wrap:wrap;gap:11px;align-items:center;justify-content:center;background:var(--glass-2);border:1px solid var(--line);border-radius:14px;padding:13px;margin-bottom:16px}
@@ -136,17 +148,17 @@
     </div>
 
     <div class="panel">
-      <h2>What's inside its mind <span style="color:var(--faint);font-weight:400;text-transform:none;letter-spacing:0">· decoded live</span></h2>
+      <h2>What's inside its mind <span style="color:var(--faint);font-weight:400;text-transform:none;letter-spacing:0">· <span class="term" tabindex="0" data-tip="Read out by a linear probe — a read-only position classifier (98.8% accurate) that recovers the agent's cell from the model's hidden activations. It reads the model; it never changes it.">decoded live</span></span></h2>
       <p class="hint" id="mind-hint">We point a "mind-reader" (a linear probe) at its hidden activations.</p>
       <div class="mindwrap">
         <div class="grid" id="grid">
           <div class="mfog" id="fog"><div class="q">?</div><div>Its mind is a black box… for now.</div></div>
         </div>
         <div class="legend">
-          <span class="lg-a"><i></i>where it actually is</span>
-          <span class="lg-b"><i></i>where it <b>believes</b> it is</span>
+          <span class="lg-a"><i></i><span class="term" tabindex="0" data-tip="The solid cyan dot: the agent's true square, advanced one step per symbol.">where it actually is</span></span>
+          <span class="lg-b"><i></i><span class="term" tabindex="0" data-tip="The dashed circle is the model's belief, decoded live by a linear probe. Normally it sits on the true square. Implant a false memory and it turns red and travels alongside the true agent, offset by your lie — the model's move-arrows always match the walls where it thinks it is. Proof the internal map is causal, not decorative.">where it <b>believes</b> it is</span></span>
         </div>
-        <div class="lampsense" id="lampsense">lamp-sense: —</div>
+        <div class="lampsense" id="lampsense"><span class="term" tabindex="0" data-tip="How strongly the model predicts the 👁 (lamp) symbol next — i.e. how sure it is a lamp is in view. It spikes when the model believes it's beside the lamp, even if it really isn't.">lamp-sense</span>: <span id="lampval">—</span></div>
       </div>
     </div>
   </div>
@@ -231,9 +243,22 @@ function forward(ids,injDelta){
   return {logits, resid:xl};
 }
 const probeRead=r=>({x:dot(M.probe.wx,r)+M.probe.bx, y:dot(M.probe.wy,r)+M.probe.by});
+/* belief read-out: 49-way linear classifier, rendered at its EXPECTED position
+   (sum_c P(cell)*coord) — accurate like argmax, yet continuous so the circle floats
+   and honestly sits between cells when the model is genuinely uncertain. */
+function decodePos(r){
+  const W=M.classifier.w, B=M.classifier.b, CL=M.classifier.classes;
+  const logits=W.map((row,c)=>dot(row,r)+B[c]);
+  const p=softmax(logits);
+  let ex=0, ey=0, best=0, bp=-1;
+  for(let c=0;c<CL.length;c++){const cell=CL[c];
+    ex+=p[c]*Math.floor(cell/GRID); ey+=p[c]*(cell%GRID);
+    if(p[c]>bp){bp=p[c]; best=cell;}}
+  return {x:ex, y:ey, conf:bp};
+}
 
 /* ───────── world / sim ───────── */
-let GRID,START,LAMP,TOK,DIR,believedTarget=null;
+let GRID,START,LAMP,TOK,DIR,beliefOffset=null;   // the lie, stored as a grid displacement so the belief dead-reckons
 function legalDirs(x,y){return Object.keys(DIR).filter(k=>{const[dx,dy]=DIR[k];return x+dx>=0&&x+dx<GRID&&y+dy>=0&&y+dy<GRID;});}
 const nearLamp=(x,y)=>Math.abs(x-LAMP[0])+Math.abs(y-LAMP[1])<=1;
 const cellIdx=(x,y)=>x*GRID+y;
@@ -245,12 +270,18 @@ function resetEpisode(){ids=[];[ax,ay]=START;}
    so lamp-sense (the model's predicted P(lamp)) is consistent and flicker-free. */
 function stepToken(){
   if(ids.length>74) resetEpisode();           // keep within training context, fixed-start
-  const ld=legalDirs(ax,ay); const k=ld[Math.floor(Math.random()*ld.length)];
+  let ld=legalDirs(ax,ay);
+  if(beliefOffset!=null){                      // keep the believed cell on-grid too, so the red marker never sticks
+    const ok=ld.filter(k=>{const[dx,dy]=DIR[k]; const bx=ax+dx+beliefOffset.dx, by=ay+dy+beliefOffset.dy; return bx>=0&&bx<GRID&&by>=0&&by<GRID;});
+    if(ok.length) ld=ok;
+  }
+  const k=ld[Math.floor(Math.random()*ld.length)];
   const [dx,dy]=DIR[k]; ax+=dx; ay+=dy; ids.push(TOK[k]);
 }
 
 /* ───────── render ───────── */
 let act=1, playing=true, timer=null, speed=650;
+let smX=null, smY=null;   // smoothed belief position so the circle hovers instead of jittering
 const TOKCH={N:'↑',S:'↓',E:'→',W:'←',LAMP:'👁'};
 function cellCenterPct(x,y){ // grid has 10px pad; 7 cells, 4px gap. Use percentage within grid box.
   const pad=10, gap=4, box=$("grid").clientWidth, inner=box-2*pad, cw=(inner-6*gap)/7;
@@ -259,11 +290,23 @@ function cellCenterPct(x,y){ // grid has 10px pad; 7 cells, 4px gap. Use percent
 }
 function render(){
   // forward
-  const delta = believedTarget!=null ? subCell(believedTarget, cellIdx(ax,ay)) : null;
+  // Live dead-reckoning: believed cell = true position + the implanted offset. The walk is
+  // constrained (see stepToken) so the belief stays on-grid — it glides with the agent, never sticking.
+  // The model's predictions reflect that believed cell's walls, proving the internal map is causal.
+  let delta = null;
+  if(beliefOffset!=null){
+    const tx=Math.max(0,Math.min(GRID-1,ax+beliefOffset.dx)), ty=Math.max(0,Math.min(GRID-1,ay+beliefOffset.dy));
+    delta = subCell(cellIdx(tx,ty), cellIdx(ax,ay));
+  }
   const {logits,resid} = forward(ids, delta);
   const probs = softmax(logits);
-  const bel = probeRead(resid);
-  const bx=Math.max(0,Math.min(GRID-1,Math.round(bel.x))), by=Math.max(0,Math.min(GRID-1,Math.round(bel.y)));
+  const bel = decodePos(resid);
+  // continuous (un-rounded) belief position, lightly smoothed: the classifier's EXPECTED
+  // position floats between cells, so the circle glides instead of snapping cell-to-cell.
+  const belRX=Math.max(0,Math.min(GRID-1,bel.x)), belRY=Math.max(0,Math.min(GRID-1,bel.y));
+  if(smX===null||!isFinite(smX)){smX=belRX;smY=belRY;} else {smX+=0.35*(belRX-smX);smY+=0.35*(belRY-smY);}
+  const belX=smX, belY=smY;
+  const bx=Math.round(belRX), by=Math.round(belRY);   // rounded only where a discrete cell is needed
 
   // token stream
   const stream=$("stream"); stream.innerHTML="";
@@ -272,19 +315,18 @@ function render(){
     el.className="gtok"+(nm==='LAMP'?" lamp":"")+(i===tail.length-1?" cur":"");el.textContent=TOKCH[nm];stream.appendChild(el);});
 
   // markers
-  const g=$("grid"); [...g.querySelectorAll(".marker,.arrow,.lampM")].forEach(e=>e.remove());
-  const lying = believedTarget!=null;
+  const g=$("grid"); [...g.querySelectorAll(".marker,.arrow,.lampM,.hallu-tag")].forEach(e=>e.remove());
+  const lying = beliefOffset!=null;
   // lamp (true position) — drawn as a cell child already; phantom handled via lamp-sense
   if(act>=2){
-    // believed agent
-    const bp=cellCenterPct(bx,by); const bm=document.createElement("div");
+    // believed agent — placed at the continuous probe coordinate so it floats, not teleports
+    const bp=cellCenterPct(belX,belY); const bm=document.createElement("div");
     bm.className="marker belief"+(lying?" lying":""); bm.style.left=bp.l+"%"; bm.style.top=bp.t+"%"; g.appendChild(bm);
-    // prediction arrows around believed position
+    // prediction arrows follow the floating belief — this is the model's real conviction
     const arr={N:[0,-1],S:[0,1],E:[1,0],W:[-1,0]};
     for(const k in arr){const pr=probs[TOK[k]];if(pr<0.04)continue;const[dx,dy]=arr[k];
-      const ax2=Math.max(0,Math.min(GRID-1,bx+dx*0.001));const pos=cellCenterPct(bx,by);
       const a=document.createElement("div");a.className="arrow";a.textContent=TOKCH[k];
-      a.style.left=(pos.l+dx*7)+"%";a.style.top=(pos.t+dy*7)+"%";a.style.opacity=Math.min(1,0.25+pr*1.6);
+      a.style.left=(bp.l+dx*7)+"%";a.style.top=(bp.t+dy*7)+"%";a.style.opacity=Math.min(1,0.25+pr*1.6);
       a.style.fontSize=(10+pr*10)+"px";g.appendChild(a);}
     // true agent
     const ap=cellCenterPct(ax,ay); const am=document.createElement("div");
@@ -293,18 +335,18 @@ function render(){
 
   // lamp sense
   const pl=probs[TOK.LAMP];
-  const ls=$("lampsense");
-  const believesNearLamp = nearLamp(bx,by);
-  ls.className="lampsense"+(pl>0.4?" on":"");
-  ls.textContent = pl>0.4
-    ? (lying && !nearLamp(ax,ay) ? `lamp-sense: 👁 ON — it "sees" a lamp that isn't there (${(pl*100|0)}%)` : `lamp-sense: 👁 ON — it senses the lamp (${(pl*100|0)}%)`)
-    : `lamp-sense: · off (${(pl*100|0)}%)`;
-  // phantom lamp marker at believed cell
+  $("lampsense").classList.toggle("on", pl>0.4);
+  $("lampval").textContent = pl>0.4
+    ? (lying && !nearLamp(ax,ay) ? `👁 ON — it "sees" a lamp that isn't there (${(pl*100|0)}%)` : `👁 ON — it senses the lamp (${(pl*100|0)}%)`)
+    : `· off (${(pl*100|0)}%)`;
+  // hallucination: believes it's by the lamp while truly far away -> "sees" a lamp that isn't there
   if(pl>0.4 && lying && !nearLamp(ax,ay)){
-    const lp=cellCenterPct(LAMP[0],LAMP[1]); // keep real lamp; add phantom near belief
+    const bp2=cellCenterPct(belX,belY);
     const ph=document.createElement("div");ph.className="arrow lampM";ph.textContent="🔦";
-    const bp2=cellCenterPct(bx,by);ph.style.left=bp2.l+"%";ph.style.top=(bp2.t-12)+"%";ph.style.fontSize="16px";
-    ph.style.filter="drop-shadow(0 0 8px rgba(255,200,120,.8))";g.appendChild(ph);
+    ph.style.left=bp2.l+"%";ph.style.top=(bp2.t-13)+"%";ph.style.fontSize="16px";
+    ph.style.filter="drop-shadow(0 0 9px rgba(255,200,120,.9))";g.appendChild(ph);
+    const tag=document.createElement("div");tag.className="hallu-tag";tag.textContent="hallucinating 🔦";
+    tag.style.left=bp2.l+"%";tag.style.top=(bp2.t+13)+"%";g.appendChild(tag);
   }
 
   // readout text
@@ -319,8 +361,10 @@ function buildGrid(){
   for(let y=0;y<GRID;y++)for(let x=0;x<GRID;x++){
     const c=document.createElement("div");c.className="cell";c.dataset.x=x;c.dataset.y=y;
     if(x===LAMP[0]&&y===LAMP[1]) c.innerHTML='<span class="lamp">🔦</span>';
-    c.onclick=()=>{ if(act<3)return; believedTarget=cellIdx(x,y); $("releaseBtn").style.display="";
-      flash(nearLamp(x,y)?'Implanted a belief next to the lamp — watch it hallucinate 🔦':'Belief implanted — it now thinks it lives here'); render(); };
+    c.onclick=()=>{ if(act<3)return; const cap=v=>Math.max(-3,Math.min(3,v));   // cap so START+offset stays on-grid
+      beliefOffset={dx:cap(x-ax), dy:cap(y-ay)}; smX=null; $("releaseBtn").style.display="";
+      const bx=ax+beliefOffset.dx, by=ay+beliefOffset.dy;
+      flash(nearLamp(bx,by)?'False memory implanted near the lamp — watch it hallucinate as it roams 🔦':'False memory implanted — its belief now travels with it, offset by the lie'); render(); };
     g.appendChild(c);
   }
   g.appendChild(fog);
@@ -333,7 +377,7 @@ const ACTS={
   2:{badge:"ACT II",btn:"Now change its mind →",
      text:`<b>But look what's inside.</b> A linear "mind-reader" lifts the agent's position straight out of its activations — and it's <b>right</b>. Nobody gave it a map; it <b>built one</b> to do its job. The dashed marker is where it <b>believes</b> it is. When it nears the 🔦, it even predicts <b>seeing</b> it.`},
   3:{badge:"ACT III",btn:"What just happened? →",
-     text:`<b>Reach in and lie to it.</b> <b>Click any cell</b> to overwrite its sense of place. It will act on the false belief — refusing moves that are only walls <i>where it thinks it is</i>, and <b>hallucinating the lamp</b> if you place it nearby. <span class="dim">The map in its head is causal.</span>`},
+     text:`<b>Reach in and lie to it.</b> <b>Click any cell</b> to shift where it thinks it is. It keeps moving — the red marker (its belief) <b>travels alongside</b> the true blue agent, offset by your lie — refusing moves that are only walls <i>where it thinks it is</i>, and <b>hallucinating the lamp</b> when its believed path nears it. <span class="dim">The map in its head is causal.</span>`},
   4:{badge:"CODA",btn:"↺ Watch again",
      text:`<b>This is real.</b> You just watched a machine build a world from nothing but symbols — and saw that its inner world steers its behavior. Scroll down for what this means, and the proof it scales.`},
 };
@@ -341,10 +385,10 @@ function setAct(a){
   act=a; const A=ACTS[a]; $("act-badge").textContent=A.badge; $("act-text").innerHTML=A.text; $("actBtn").textContent=A.btn;
   $("fog").style.opacity = a>=2?0:1; $("fog").style.pointerEvents = a>=2?"none":"auto";
   $("grid").classList.toggle("editable", a>=3);
-  $("mind-hint").textContent = a>=3 ? "Click any cell to implant a false memory. ↺ release to restore." :
+  $("mind-hint").textContent = a>=3 ? "Click any cell to implant a false memory — its belief then travels with it;↺ release to restore." :
     (a>=2? "Decoded live from its hidden activations by a linear probe." : "We point a \"mind-reader\" (a linear probe) at its hidden activations.");
   $("coda").classList.toggle("show", a===4);
-  $("releaseBtn").style.display = (a>=3 && believedTarget!=null) ? "" : "none";
+  $("releaseBtn").style.display = (a>=3 && beliefOffset!=null) ? "" : "none";
   if(a===4){ flash("That world existed only inside a 155K-parameter mind."); }
 }
 
@@ -353,6 +397,26 @@ function tick(){ if(playing){ stepToken(); render(); } }
 function startLoop(){ clearInterval(timer); timer=setInterval(tick, speed); }
 
 function flash(m){const f=$("flash");f.textContent=m;f.className="flash show";clearTimeout(f._t);f._t=setTimeout(()=>f.className="flash",2200);}
+
+/* ───────── on-demand explainers (hover / tap / focus), positioned outside panels so never clipped ───────── */
+(function(){
+  const tip=document.createElement('div'); tip.className='tip'; document.body.appendChild(tip);
+  let cur=null;
+  function place(el){
+    const r=el.getBoundingClientRect(), tw=tip.offsetWidth, th=tip.offsetHeight, m=8;
+    const left=Math.max(m,Math.min(r.left+r.width/2-tw/2, innerWidth-tw-m));
+    let top=r.top-th-8; if(top<m) top=r.bottom+8;
+    tip.style.left=left+'px'; tip.style.top=top+'px';
+  }
+  function show(el){ cur=el; tip.textContent=el.dataset.tip; tip.classList.add('show'); place(el); }
+  function hide(){ cur=null; tip.classList.remove('show'); }
+  document.addEventListener('mouseover',e=>{const t=e.target.closest('.term'); if(t) show(t);});
+  document.addEventListener('mouseout', e=>{const t=e.target.closest('.term'); if(t&&!e.relatedTarget?.closest?.('.term')) hide();});
+  document.addEventListener('focusin', e=>{const t=e.target.closest('.term'); if(t) show(t);});
+  document.addEventListener('focusout',e=>{if(e.target.closest('.term')) hide();});
+  document.addEventListener('click',   e=>{const t=e.target.closest('.term'); if(t){e.preventDefault(); cur===t?hide():show(t);} else if(cur) hide();});
+  window.addEventListener('scroll',()=>{ if(cur) hide(); }, true);
+})();
 
 /* logo */
 (function(){const c=$("logo"),x=c.getContext("2d");let t=0;(function f(){t+=0.02;x.clearRect(0,0,88,88);
@@ -373,10 +437,10 @@ async function boot(){
   buildGrid(); resetEpisode();
   setAct(1); for(let i=0;i<8;i++) stepToken(); render();
 
-  $("actBtn").onclick=()=>{ if(act<4) setAct(act+1); else { believedTarget=null; resetEpisode(); for(let i=0;i<8;i++)stepToken(); setAct(1);} render(); };
+  $("actBtn").onclick=()=>{ if(act<4) setAct(act+1); else { beliefOffset=null; smX=null; resetEpisode(); for(let i=0;i<8;i++)stepToken(); setAct(1);} render(); };
   $("playBtn").onclick=()=>{ playing=!playing; $("playBtn").textContent=playing?"⏸ Pause":"▶ Play"; };
   $("speed").oninput=e=>{ speed=1300-(+e.target.value); startLoop(); };
-  $("releaseBtn").onclick=()=>{ believedTarget=null; $("releaseBtn").style.display="none"; flash("Released — its true memory restored."); render(); };
+  $("releaseBtn").onclick=()=>{ beliefOffset=null; smX=null; $("releaseBtn").style.display="none"; flash("Released — its true memory restored."); render(); };
   speed=1300-(+$("speed").value); startLoop();
   window.addEventListener('resize', render);
 }
