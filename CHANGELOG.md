@@ -4,6 +4,10 @@ All notable changes to this project are recorded here. Dates are absolute (YYYY-
 
 ## 2026-06-27
 
+### Pre-launch cleanup
+- Removed a stale `TODO: replace with your real profiles` comment in `index.html`;
+  the GitHub/LinkedIn profile links beneath it were already correct.
+
 ### Brand assets — logo, favicon, social card
 
 **New "Inside the Model" logo** (`assets/inside-the-model-logo.svg` / `.png`, 512×512)
