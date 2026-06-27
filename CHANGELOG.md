@@ -4,6 +4,15 @@ All notable changes to this project are recorded here. Dates are absolute (YYYY-
 
 ## 2026-06-27
 
+### Essay (`essay.html`)
+- Reviewed against the shipped model — every figure (155K params, 98.8% / 100% / 100% /
+  99.7%) and all three external citations verified accurate and correctly linked.
+- Added a contextual inline link to the live demo inside the "Now lie to it" section, so the
+  interactive experience is offered at the moment of peak reader interest (in addition to the
+  existing nav link and demo card — all demo links preserved).
+- Aligned the regulated-domains line with the homepage's finance-forward framing
+  ("In finance, in healthcare, in anything regulated…").
+
 ### The World Inside (`inside-the-model/web/world-inside.html`)
 
 **Legibility & explainers**

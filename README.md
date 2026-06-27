@@ -4,7 +4,7 @@
 > No hand-waving, no unreadable math — things you can *see* and *poke*, backed by reproducible evidence.
 > Everything runs in your browser. No server. No tracking.
 
-**Live:** [ankur-chr.github.io](https://ankur-chr.github.io/) · by [Ankur Chrungoo](https://www.linkedin.com/in/ankurchrungoo) — principal engineer & AI architect, MSc AI (QMUL)
+**Live:** [ankur-chr.github.io](https://ankur-chr.github.io/) · by [Ankur Chrungoo](https://www.linkedin.com/in/ankurchrungoo) — principal engineer & AI architect, MSc AI
 
 ---
 
