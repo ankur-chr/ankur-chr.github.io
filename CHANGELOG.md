@@ -4,6 +4,32 @@ All notable changes to this project are recorded here. Dates are absolute (YYYY-
 
 ## 2026-06-27
 
+### Home (`index.html`) — newsletter & positioning
+
+**Newsletter rebrand → "Inside the Model"**
+- The subscribe box is now a named publication ("THE NEWSLETTER · Inside the Model") with a
+  clear promise, rather than a generic "get the next one" form. People subscribe to a named
+  thing, not to ungrouped personal updates.
+
+**State-of-the-art subscribe flow (no more bare Buttondown page)**
+- The form now posts into a hidden iframe (`target="bd-iframe"`) instead of doing a full-page
+  POST / popup, so the visitor never leaves the branded site.
+- On submit, the form is swapped in-place for a styled confirmation panel that explicitly tells
+  the subscriber to **check their inbox and click the confirmation link** (surfaces Buttondown's
+  double-opt-in step, which the default flow does not).
+- NOTE: the confirmation copy assumes double-opt-in is enabled in the Buttondown dashboard.
+
+**Positioning (umbrella + flagship series)**
+- Lightly broadened the hero lede so the *site* reads as the broad practice ("I turn frontier AI
+  ideas into things you can see and poke") with **"Inside the Model" as the first series** —
+  preserving room for future series without diluting the current focus.
+- Added `id="subscribe"` anchor to the newsletter panel so other pages can deep-link to it.
+
+### Essay (`essay.html`)
+- Renamed the closing CTA from "Subscribe on the homepage" to **"Subscribe to Inside the Model"**,
+  now deep-linking to `index.html#subscribe`, for consistent newsletter branding across pages.
+
+
 ### Essay (`essay.html`)
 - Reviewed against the shipped model — every figure (155K params, 98.8% / 100% / 100% /
   99.7%) and all three external citations verified accurate and correctly linked.

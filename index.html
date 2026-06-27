@@ -101,6 +101,14 @@
   .news input:focus{border-color:rgba(110,231,255,.5)}
   .news button{background:linear-gradient(90deg,rgba(110,231,255,.22),rgba(183,148,255,.22));border:1px solid rgba(110,231,255,.45);color:var(--ink);border-radius:10px;padding:11px 16px;font-size:14px;font-weight:600;cursor:pointer}
   .news .note{font-size:11px;color:var(--faint);margin-top:10px}
+  .news .nl-kick{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;color:var(--accent);margin-bottom:7px}
+  .news h3{font-size:20px;letter-spacing:-.3px}
+  .bd-sink{display:none}
+  .news .done{margin-top:6px;border:1px solid rgba(62,230,160,.35);background:rgba(62,230,160,.07);border-radius:12px;padding:15px 16px}
+  .news .done .ok{display:flex;align-items:center;gap:9px;font-weight:650;color:#bdf5db;font-size:14px;margin-bottom:7px}
+  .news .done .ok .ck{width:19px;height:19px;flex:0 0 auto;border-radius:50%;background:var(--good);color:#04130c;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800}
+  .news .done p{margin:0;font-size:13px;color:var(--muted);line-height:1.55}
+  .news .done p b{color:var(--ink)}
 
   .about .creds{display:flex;flex-direction:column;gap:9px;margin-top:6px}
   .about .cred{display:flex;gap:10px;font-size:13px;color:var(--muted)}
@@ -133,8 +141,9 @@
     <div class="eyebrow"><span class="dot"></span> INTERACTIVE ARGUMENTS ABOUT AI</div>
     <h1>Machines are quietly building <span class="g">inner worlds</span>.</h1>
     <p class="subhead">I make them visible and playable — <b>one small, provable demo at a time.</b></p>
-    <p class="lede">Principal engineer & AI architect. Most writing about what's <i>inside</i> AI models is hand-waving or
-      unreadable math — so I build the third thing: something you can actually <b>see and poke</b>, backed by reproducible evidence.</p>
+    <p class="lede">Principal engineer & AI architect. I turn frontier AI ideas into things you can actually
+      <b>see and poke</b> — backed by reproducible evidence, instead of hand-waving or unreadable math.
+      <b>First series: what's really happening inside the model.</b></p>
     <div class="cta">
       <a class="btn primary" href="inside-the-model/web/world-inside.html">▶ Watch a model build a world</a>
       <a class="btn" href="essay.html">Read the write-up</a>
@@ -189,16 +198,23 @@
       <p>These demos are my way of arguing that case in public — not with opinions, but with things you can run.
         <a class="inline" href="essay.html">Read the full write-up →</a></p>
     </div>
-    <div class="panel news">
-      <h3>Get the next one</h3>
-      <p>Next in the series: rendering the real, accurate <b>map of Earth</b> hidden inside an actual large language model.
-        Drop your email and I'll send it when it lands.</p>
-      <form class="embeddable-buttondown-form" action="https://buttondown.com/api/emails/embed-subscribe/ankurchrungoo" method="post"
-            target="popupwindow" onsubmit="window.open('https://buttondown.com/ankurchrungoo','popupwindow')">
+    <div class="panel news" id="subscribe">
+      <div class="nl-kick">THE NEWSLETTER</div>
+      <h3>Inside the Model</h3>
+      <p>Interactive deep-dives into what AI models actually know — every issue is something you can open and
+        <b>play with</b>, not just read. <b>Next up:</b> rendering the real map of Earth hidden inside a large language model.</p>
+      <form id="bd-form" class="embeddable-buttondown-form" action="https://buttondown.com/api/emails/embed-subscribe/ankurchrungoo"
+            method="post" target="bd-iframe">
         <input type="email" name="email" placeholder="you@email.com" required />
         <button type="submit">Subscribe</button>
       </form>
-      <div class="note">No spam. New interactive deep-dives only. Unsubscribe anytime.</div>
+      <iframe name="bd-iframe" class="bd-sink" title="subscription"></iframe>
+      <div class="note" id="bd-note">Free. New interactive deep-dives only — no spam, unsubscribe anytime.</div>
+      <div class="done" id="bd-done" hidden>
+        <div class="ok"><span class="ck">✓</span> One more step — check your inbox</div>
+        <p>I've emailed you a link to confirm your subscription to <b>Inside the Model</b>. Click it and you're in.
+          (Peek in spam or Promotions if it's not there in a minute.)</p>
+      </div>
     </div>
   </div>
 
@@ -232,6 +248,17 @@
   for(let i=0;i<8;i++){const a=t+i*Math.PI/4,r=10+i*3.2;const px=42+Math.cos(a)*r,py=42+Math.sin(a)*r;
     x.beginPath();x.fillStyle=`hsla(${(i*40+t*50)%360},90%,68%,.9)`;x.shadowBlur=10;x.shadowColor=x.fillStyle;x.arc(px,py,2.1,0,7);x.fill();}
   x.shadowBlur=0;requestAnimationFrame(f);})();})();
+
+// Newsletter: native POST goes to a hidden iframe (no page nav), then we reveal our own branded confirmation.
+(function(){var f=document.getElementById("bd-form");if(!f)return;
+  f.addEventListener("submit",function(){
+    // submit fires only when the email is valid (input is type=email + required)
+    setTimeout(function(){
+      f.hidden=true;
+      var n=document.getElementById("bd-note");if(n)n.hidden=true;
+      var d=document.getElementById("bd-done");if(d)d.hidden=false;
+    },350);
+  });})();
 </script>
 </body>
 </html>
