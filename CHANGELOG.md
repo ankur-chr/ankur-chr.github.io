@@ -4,6 +4,20 @@ All notable changes to this project are recorded here. Dates are absolute (YYYY-
 
 ## 2026-06-27
 
+### Demo intro clarity + masthead (`world-inside.html`)
+
+**Lede that leads the page** — replaced the H1 sub-line with a left-aligned `.lede` intro
+paragraph matching the ÆTHER / Aquarium pattern, so the demo opens with a single descriptive
+line a first-time visitor reads before anything else: *"A model that only ever read an agent's
+movement symbols secretly built a map of its world inside. Here you read what it sees, decode
+that map from its mind, then edit it — and watch its behavior follow the lie."* Plain prose with
+two bold anchors (movement symbols, map of its world) — no decorative chips, low cognitive load.
+
+**Masthead kicker bridges the naming** — added an `INSIDE THE MODEL · #1` eyebrow above the
+`The World Inside` title. The page title and its nav tab share no words ("The World Inside" vs
+"Inside the Model"); the kicker surfaces the series name so the active tab and the masthead agree,
+and it matches the footer's "Inside the Model #1". Removed the old subtitle that duplicated the lede.
+
 ### Site-wide navigation + responsiveness
 
 **Unified nav across all five pages** — one consistent bar everywhere:
