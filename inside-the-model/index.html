@@ -7,6 +7,8 @@
 <meta name="description" content="A 155K-parameter model builds a world from move-symbols, a probe reads its mind live, and you can edit its beliefs — runs entirely in your browser." />
 <meta property="og:title" content="Inside the Model — The World Inside" />
 <meta property="og:description" content="A tiny model builds a world from symbols, reads its own map, and acts on a false one when you edit its mind. Runs in your browser." />
+<meta property="og:url" content="https://ankur-chr.github.io/inside-the-model/" />
+<meta property="og:type" content="website" />
 <meta property="og:image" content="https://ankur-chr.github.io/assets/og-image.png" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://ankur-chr.github.io/assets/og-image.png" />
@@ -148,11 +150,11 @@
       <div><span class="kicker">Inside the Model · #1</span><h1>The <b>World Inside</b></h1></div>
     </div>
     <nav class="nav">
-      <a href="../../index.html">Home</a>
-      <a href="world-inside.html" aria-current="page">Inside the Model</a>
-      <a href="../../aether.html">ÆTHER</a>
-      <a href="../../aquarium.html">Aquarium</a>
-      <a href="../../essay.html">Writing</a>
+      <a href="../index.html">Home</a>
+      <a href="./" aria-current="page">Inside the Model</a>
+      <a href="../aether.html">ÆTHER</a>
+      <a href="../aquarium.html">Aquarium</a>
+      <a href="../writing.html">Writing</a>
     </nav>
   </header>
 
@@ -237,7 +239,7 @@
   <footer>
     The World Inside · <b>Inside the Model #1</b> · a 155K-param transformer running live in your browser, no server, no network.
     Trained only on next-token prediction; world model decoded by a linear probe; belief edited by activation patching. <code>open-source</code>
-    <div class="byline">Built by <a href="../../index.html">Ankur Chrungoo</a> · <a href="../../index.html">more projects</a></div>
+    <div class="byline">Built by <a href="../index.html">Ankur Chrungoo</a> · <a href="../index.html">more projects</a></div>
   </footer>
 </div>
 <div class="flash" id="flash"></div>
@@ -460,7 +462,7 @@ function flash(m){const f=$("flash");f.textContent=m;f.className="flash show";cl
 
 /* ───────── boot ───────── */
 async function boot(){
-  try{ M = await (await fetch('./model.json')).json(); }
+  try{ M = await (await fetch('./web/model.json')).json(); }
   catch(e){ $("app").innerHTML="<div class='loading'>Could not load model.json — serve this folder over http.</div>"; return; }
   C=M.config; d=C.d; h=C.h; hd=d/h; L=C.L;
   GRID=C.grid; START=C.start.slice(); LAMP=C.lamp.slice();

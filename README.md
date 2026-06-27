@@ -21,7 +21,7 @@ Yet to do its job, it secretly **builds a model of the world** and stores it in 
    **acts on the lie** — refusing exits that are only walls *where it thinks it is*, and **hallucinating** a
    landmark that isn't there.
 
-▶ **[Open the live demo](https://ankur-chr.github.io/inside-the-model/web/world-inside.html)** — runs entirely client-side.
+▶ **[Open the live demo](https://ankur-chr.github.io/inside-the-model/)** — runs entirely client-side.
 
 ## Is it real? (measured on the shipped model)
 
@@ -69,7 +69,8 @@ node ../web/runtime_test.js   # Gate 4: JS forward pass == PyTorch (err ~1e-6)
 
 ## Tech
 
-Pure static files. The transformer's forward pass is **reimplemented in vanilla JS** (`world-inside.html`) and runs the
+Pure static files. The transformer's forward pass is **reimplemented in vanilla JS** (`inside-the-model/index.html`,
+which loads the exported weights from `web/model.json`) and runs the
 exported weights client-side — no backend, no API calls, no dependencies. Hostable on any static host (this repo ships
 for GitHub Pages).
 

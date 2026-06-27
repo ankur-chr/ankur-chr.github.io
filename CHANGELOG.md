@@ -4,6 +4,45 @@ All notable changes to this project are recorded here. Dates are absolute (YYYY-
 
 ## 2026-06-27
 
+### Renamed `essay.html` → `writing.html` for a more professional URL
+
+The long-form piece now lives at `https://ankur-chr.github.io/writing.html`, matching its
+"Writing" nav label. `git mv` plus repointed every inbound link (nav across `index.html`,
+`aether.html`, `aquarium.html`, `inside-the-model/index.html`, the two home-page CTAs), and
+updated the page's own `og:url` and active self-link. Verified live: `writing.html` resolves 200
+from every page; no stale `essay.html` references remain. (Pre-launch, so the old URL was never
+public — it now 404s rather than redirecting.)
+
+Also fixed the page's top-left masthead: it read the bare word "Writing", which duplicated the
+active "Writing" nav pill and looked off. It now shows the author wordmark **"Ankur Chrungoo"**
+(linking home), matching the site convention where the masthead carries identity, not the section
+label.
+
+### Clean flagship URL + launch-readiness fixes (demo relocation, `og:url`, runbook)
+
+Prep for the Hacker News / social launch: gave the flagship demo a clean, shareable URL and
+removed the rough edges that would have hurt link previews and the publish flow.
+
+- **Relocated the demo to a clean path.** `inside-the-model/web/world-inside.html` →
+  `inside-the-model/index.html`, so the canonical URL is now
+  `https://ankur-chr.github.io/inside-the-model/` instead of the deep
+  `…/inside-the-model/web/world-inside.html`. This is a *real* relocation (not a redirect) so
+  social scrapers see the `og:` tags directly — a redirected URL would have rendered a blank
+  X/LinkedIn card. The model fetch is now `./web/model.json` (weights stay in `web/`, alongside
+  `runtime_test.js`); the demo's own nav/byline links rebased from `../../` to `../`.
+- **Old URL still resolves.** `inside-the-model/web/index.html` now redirects up to the clean
+  path (with a `rel=canonical`), so any pre-existing `…/web/` link lands on the demo.
+- **Added the missing `og:url`** (+ `og:type`) to the demo page — it was the only page lacking a
+  canonical URL, which would have broken link-preview cards on X/LinkedIn.
+- **Repointed every inbound link** to the clean path: nav + hero CTAs + the home iframe across
+  `index.html`, `essay.html`, `aether.html`, `aquarium.html`, plus the `README.md` demo link.
+- **Rewrote the stale `PUBLISH.md` runbook** to match reality: the repo is the user-pages repo
+  `ankur-chr.github.io` (serves at root, no custom domain / no `CNAME`), placeholders are already
+  resolved, and the HN submit URL is the clean `inside-the-model/` path.
+- **Verified live** (local preview): both clean and old `/web/` URLs return 200, the model loads
+  with a clean console, and every cross-page link resolves 200 in both directions
+  (root ⇄ demo one folder deep).
+
 ### Credibility pass on copy — grounded the over-stated claims (`index.html`, `essay.html`, `world-inside.html`)
 
 Aligned the on-page wording with the tightened launch copy, removing anthropomorphic

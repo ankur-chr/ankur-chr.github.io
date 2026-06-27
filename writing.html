@@ -8,7 +8,7 @@
 <meta property="og:title" content="What does a machine actually know?" />
 <meta property="og:description" content="Watch a 155K-parameter model build a world from symbols — then change its mind. And why that's the whole game for trusting AI." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://ankur-chr.github.io/essay.html" />
+<meta property="og:url" content="https://ankur-chr.github.io/writing.html" />
 <meta property="og:image" content="https://ankur-chr.github.io/assets/og-image.png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
@@ -36,7 +36,8 @@
   .wrap{max-width:680px;margin:0 auto;padding:30px 22px 90px}
   header.top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:46px}
   .brand{display:flex;align-items:center;gap:13px}
-  .brand .bnm{font-size:15px;font-weight:650;letter-spacing:.2px}
+  .brand .bnm{font-size:15px;font-weight:650;letter-spacing:.2px;color:inherit;text-decoration:none;transition:opacity .18s}
+  .brand .bnm:hover{opacity:.7}
   .nav{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end;font-size:13px}
   .nav a{color:var(--muted);text-decoration:none;border:1px solid var(--line);padding:8px 13px;border-radius:999px;transition:.18s}
   .nav a:hover{color:var(--ink);border-color:rgba(110,231,255,.45);background:rgba(110,231,255,.06)}
@@ -82,13 +83,13 @@
 <body>
 <div class="wrap">
   <header class="top">
-    <div class="brand"><span class="bnm">Writing</span></div>
+    <div class="brand"><a class="bnm" href="index.html">Ankur Chrungoo</a></div>
     <nav class="nav">
       <a href="index.html">Home</a>
-      <a href="inside-the-model/web/world-inside.html">Inside the Model</a>
+      <a href="inside-the-model/">Inside the Model</a>
       <a href="aether.html">ÆTHER</a>
       <a href="aquarium.html">Aquarium</a>
-      <a href="essay.html" aria-current="page">Writing</a>
+      <a href="writing.html" aria-current="page">Writing</a>
     </nav>
   </header>
 
@@ -115,7 +116,7 @@
     <p>By the "just autocomplete" story, it should learn some shallow statistics of which symbol tends to follow which, and
       stop there. It does not.</p>
 
-    <a class="demo" href="inside-the-model/web/world-inside.html">
+    <a class="demo" href="inside-the-model/">
       <div class="bar"><canvas id="demoCanvas" width="640" height="160"></canvas><span class="play">▶ open the live experience</span></div>
       <div class="cap"><b>The World Inside</b> — read its mind, then change it. Runs entirely in your browser.</div>
     </a>
@@ -134,7 +135,7 @@
 
     <p>Here's where it stops being cute. Because the world model lives in a specific place in the activations, I can
       <strong>reach in and overwrite it</strong> — a technique called activation patching.
-      <a href="inside-the-model/web/world-inside.html">In the live demo</a> you do this by
+      <a href="inside-the-model/">In the live demo</a> you do this by
       clicking a cell: you implant the false belief <em>"you are over here."</em></p>
 
     <p>The model then <strong>acts on the false belief</strong>. It starts refusing moves that are only blocked <em>where it now thinks
