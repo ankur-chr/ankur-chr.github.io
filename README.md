@@ -75,4 +75,6 @@ for GitHub Pages).
 
 ## License
 
-[MIT](LICENSE) © 2026 Ankur Chrungoo.
+**Code** — [MIT](LICENSE) © 2026 Ankur Chrungoo. Use it, modify it, and build on it freely.
+
+**Writing** — the long-form piece and other written content on the site are © 2026 Ankur Chrungoo, all rights reserved. Please link to them rather than republishing.
