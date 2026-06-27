@@ -4,6 +4,24 @@ All notable changes to this project are recorded here. Dates are absolute (YYYY-
 
 ## 2026-06-27
 
+### Brand assets — logo, favicon, social card
+
+**New "Inside the Model" logo** (`assets/inside-the-model-logo.svg` / `.png`, 512×512)
+- A dark "model" chip containing the world it builds: a coordinate grid, a cyan→violet
+  belief-trail, and a reticle-ringed agent node. Works on light/dark and circular crops.
+  PNG is the upload for the Buttondown newsletter image.
+
+**Favicon** (`favicon.svg` + `favicon-32.png` + `apple-touch-icon.png`)
+- Tab-optimized simplified mark (trail + node, no grid) so it stays legible at 16–32px.
+- Wired into all five pages (`index`, `essay`, `aether`, `aquarium`, `world-inside`) via
+  absolute root paths, plus `theme-color`.
+
+**Social-share card** (`assets/og-image.svg` / `.png`, 1200×630)
+- Branded link-preview image (logo + "Inside the Model" + tagline) for LinkedIn / X / Slack.
+- Added `og:image` (+ width/height), `twitter:card=summary_large_image`, and `twitter:image`
+  to all five pages. Demo pages (`aether`, `aquarium`, `world-inside`) also gained
+  `meta description` + `og:title`/`og:description` so their shares render properly.
+
 ### Home (`index.html`) — newsletter & positioning
 
 **Newsletter rebrand → "Inside the Model"**
