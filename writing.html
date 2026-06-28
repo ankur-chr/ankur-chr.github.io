@@ -123,7 +123,7 @@
 
     <p>When you point a simple "mind-reader" — a linear probe — at the network's internal activations, the agent's
       <strong>position on the grid pops right out</strong>, with 98.8% accuracy. Nobody put it there. To get good at guessing
-      the next move, the model had no choice but to <em>build a model of the world the symbols describe</em> and keep it in
+      the next move, the most useful strategy it found was to <em>represent the world the symbols describe</em> and keep it in
       its head. You can watch it do this, live: as it reads, a map it was never given assembles itself.</p>
 
     <p class="pull">It didn't memorize sequences. It reconstructed the world that produced them.</p>
@@ -154,15 +154,22 @@
     <h2>"But it's a toy"</h2>
 
     <p>It is — on purpose. I used a tiny model precisely because it's small enough to <em>prove</em> the whole chain
-      end-to-end, and to run live in your browser with no server and nothing to take on faith. But the phenomenon is not a
-      toy. It is documented all the way up.</p>
+      end-to-end, and to run live in your browser with nothing to take on faith. The toy setup is deliberate, but the
+      broader pattern is not isolated to this demo: related work has found internal board, space, and time representations
+      in larger models.</p>
+
+    <p style="font-family:var(--sans);font-size:14.5px;line-height:1.6;color:var(--muted);border-left:3px solid var(--line);padding:2px 0 2px 18px;margin:24px 0">
+      A note on words: here, <strong>"belief"</strong> is shorthand for a decoded internal state representation. I am not
+      claiming consciousness or human-like understanding. The claim is narrower and more useful — in this controlled setup,
+      the representation is measurable, editable, and causally connected to behaviour.</p>
 
     <p>A transformer trained only on <a href="https://arxiv.org/abs/2210.13382">Othello moves builds the board</a> in its
       activations, and editing that internal board changes how it plays. Llama-class models contain a linear
       <a href="https://arxiv.org/abs/2310.02207">map of real-world place and time</a> — real latitudes and
       longitudes, recoverable with a ruler. When Anthropic amplified a single internal feature, Claude became
       <a href="https://www.anthropic.com/news/golden-gate-claude">obsessed with the Golden Gate Bridge</a>. The difference
-      between my 155K-parameter grid-walker and a frontier model is scale and richness — not the existence of an inner world.</p>
+      between my 155K-parameter grid-walker and a frontier model is not that small models can have representations and large
+      ones cannot — it's scale, richness, and how hard those representations are to isolate cleanly.</p>
 
     <h2>Why I care, and why you should</h2>
 
@@ -196,7 +203,8 @@
       hidden inside an actual large language model — and render it. <a href="index.html#subscribe">Subscribe to <strong>Inside the Model</strong></a> to get it.</p>
       <p>The model, the training code, and every test above are open-source and reproducible:
         <a href="https://github.com/ankur-chr/ankur-chr.github.io">github.com/ankur-chr/ankur-chr.github.io</a>.
-        Built as a static, offline, single-file experience — no server ever sees your interaction.</p>
+        Built as a static, single-file experience — the model runs locally and no model inputs or interaction state are
+        sent to a backend. The site uses privacy-friendly, cookieless page-view analytics.</p>
       <p>© 2026 Ankur Chrungoo. The code is <a href="https://github.com/ankur-chr/ankur-chr.github.io/blob/main/LICENSE">MIT-licensed</a>;
         this written piece is all rights reserved — please link rather than republish.</p>
     </div>

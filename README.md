@@ -2,7 +2,8 @@
 
 > Small, rigorous, **playable** demos about what's actually happening inside neural networks.
 > No hand-waving, no unreadable math — things you can *see* and *poke*, backed by reproducible evidence.
-> Everything runs in your browser. No server. No tracking.
+> Model inference runs in your browser; no model inputs or interaction state are sent to a backend.
+> The site uses privacy-friendly, cookieless page-view analytics.
 
 **Live:** [ankur-chr.github.io](https://ankur-chr.github.io/) · by [Ankur Chrungoo](https://www.linkedin.com/in/ankurchrungoo) — principal engineer & AI architect, MSc AI
 
@@ -13,13 +14,17 @@
 A **155,000-parameter** transformer is trained to do exactly one thing — predict the next move-symbol of an agent
 wandering a grid (`↑ ↑ → ↓ …`). It is **never** shown a grid, a map, or a coordinate.
 
-Yet to do its job, it secretly **builds a model of the world** and stores it in its activations. This demo:
+Yet to do its job, it **builds a model of the world** and stores it in its activations. This demo:
 
-1. **Reads its mind** — a linear probe lifts the agent's position straight out of the hidden activations, live.
+1. **Reads it out** — a linear probe lifts the agent's position straight out of the hidden activations, live.
 2. **Proves it's used** — the model only ever predicts *legal* moves; it won't "walk through walls."
 3. **Edits the belief** — you click a cell to overwrite its sense of place (activation patching), and it
-   **acts on the lie** — refusing exits that are only walls *where it thinks it is*, and **hallucinating** a
+   **acts on the false belief** — refusing exits that are only walls *where it thinks it is*, and **hallucinating** a
    landmark that isn't there.
+
+> In this demo, **"belief"** is shorthand for a *decoded internal state representation* — not consciousness or
+> human-like understanding. The claim is narrow and measurable: in this controlled toy grid-world, next-token
+> prediction produced an internal world-state representation that is decodable, editable, and causally connected to behaviour.
 
 ▶ **[Open the live demo](https://ankur-chr.github.io/inside-the-model/)** — runs entirely client-side.
 

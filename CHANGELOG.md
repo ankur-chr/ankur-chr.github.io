@@ -2,6 +2,32 @@
 
 All notable changes to this project are recorded here. Dates are absolute (YYYY-MM-DD).
 
+## 2026-06-28
+
+### HN launch hardening — privacy wording, claim precision, and reproducibility links
+
+A targeted credibility pass for the Hacker News / Show HN launch. No redesign, no new
+personal-brand surface — just precision where technical readers are most likely to push back.
+
+- **Fixed privacy wording to match reality.** Since GoatCounter (cookieless, page-view)
+  analytics was added, absolute claims like "No tracking" and "no network" were no longer
+  accurate. Replaced across `README.md`, `index.html`, `writing.html`,
+  `inside-the-model/index.html`, `aether.html`, and `aquarium.html` with precise wording: model
+  inference runs locally in the browser, no model inputs or interaction state are sent to a
+  backend, and the site uses privacy-friendly, cookieless page-view analytics.
+- **Defined "belief" as a decoded internal state representation.** Added a compact caveat on the
+  flagship demo (`inside-the-model/index.html`), the essay (`writing.html`), and the README —
+  "belief" is shorthand for a decoded, measurable, causally relevant internal state, not
+  consciousness or human-like understanding.
+- **Softened toy-to-frontier generalizations.** Reworded over-strong bridges on the homepage
+  ("the AI systems you actually rely on do too"), the essay ("no choice but to build…",
+  "documented all the way up", "not the existence of an inner world"), and the demo ("real at the
+  top") into careful, defensible phrasing that keeps the references intact.
+- **Added quiet Source / Reproduce / Write-up links** to the flagship demo so readers can inspect
+  and reproduce the claims without a marketing CTA.
+- **Checked the homepage demo iframe:** it already uses `loading="lazy"`, so it does not eagerly
+  load the full demo on first paint — left as-is.
+
 ## 2026-06-27
 
 ### Renamed `essay.html` → `writing.html` for a more professional URL

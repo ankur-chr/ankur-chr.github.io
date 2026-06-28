@@ -221,10 +221,10 @@
         </p>
       </div>
       <div>
-        <p><b>And this is real at the top.</b> The same phenomenon is documented in frontier models: a transformer trained
-        only on Othello moves builds the board (Li et al.; Nanda); and research finds Llama-class models carry linear
-        <b>maps of real-world place and time</b> (Gurnee &amp; Tegmark). We used a tiny model only because it's small
-        enough to <b>prove</b> — and to run, live, in your browser with no server.</p>
+        <p><b>And related patterns show up in larger systems.</b> Othello-GPT, trained only on Othello moves, builds an
+        internal board representation (Li et al.; Nanda); and research finds Llama-class models encode linear
+        <b>maps of real-world place and time</b> (Gurnee &amp; Tegmark). This toy model is small enough to <b>prove</b>
+        end-to-end — and to run, live, in your browser.</p>
         <p style="color:var(--faint)"><b>Next in this series:</b> render the real-world map of place and time hidden inside an actual LLM.</p>
         <p style="font-size:11.5px;color:var(--faint)">Refs:
           <a href="https://www.neelnanda.io/mechanistic-interpretability/othello">Othello-GPT world model</a> ·
@@ -233,11 +233,21 @@
         </p>
       </div>
     </div>
+    <p style="font-size:12.5px;line-height:1.6;color:var(--faint);border-top:1px solid var(--line);margin:22px 0 0;padding-top:16px">
+      <b style="color:var(--muted)">A note on words:</b> here, "belief" means a <b style="color:var(--muted)">decoded internal
+      state representation</b>, not consciousness or human-like understanding. This is a controlled toy grid-world experiment;
+      it shows that this model learned a measurable, causally relevant world-state representation — not that all large models
+      have cleanly readable or editable beliefs.</p>
+    <p class="reprolinks" style="font-size:12.5px;margin:14px 0 0;display:flex;gap:18px;flex-wrap:wrap">
+      <a href="https://github.com/ankur-chr/ankur-chr.github.io/tree/main/inside-the-model">Source ↗</a>
+      <a href="https://github.com/ankur-chr/ankur-chr.github.io#reproduce-it">Reproduce ↗</a>
+      <a href="../writing.html">Read the write-up →</a>
+    </p>
   </div>
   </template>
 
   <footer>
-    The World Inside · <b>Inside the Model #1</b> · a 155K-param transformer running live in your browser, no server, no network.
+    The World Inside · <b>Inside the Model #1</b> · a 155K-param transformer running live in your browser — model inputs stay local, nothing sent to a backend.
     Trained only on next-token prediction; world model decoded by a linear probe; belief edited by activation patching. <code>open-source</code>
     <div class="byline">Built by <a href="../index.html">Ankur Chrungoo</a> · <a href="../index.html">more projects</a></div>
   </footer>
