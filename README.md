@@ -5,7 +5,7 @@
 > Model inference runs in your browser; no model inputs or interaction state are sent to a backend.
 > The site uses privacy-friendly, cookieless page-view analytics.
 
-**Live:** [ankur-chr.github.io](https://ankur-chr.github.io/) · by [Ankur Chrungoo](https://www.linkedin.com/in/ankurchrungoo) — principal engineer & AI architect, MSc AI
+**Live:** [ankur-chr.github.io](https://ankur-chr.github.io/) · by [Ankur Chrungoo](https://www.linkedin.com/in/ankurchrungoo) — Principal engineer & AI architect, MSc AI
 
 ---
 
